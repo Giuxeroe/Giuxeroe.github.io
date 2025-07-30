@@ -1,0 +1,195 @@
+/* Deep Web Mining Collective - Shared Styles */
+/* Importato da Google Fonts per consistenza */
+@import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap');
+
+/* Reset e base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Variabili CSS per temi */
+:root {
+    --primary-green: #00ff00;
+    --primary-red: #ff0000;
+    --primary-cyan: #00ffff;
+    --primary-yellow: #ffff00;
+    --background-black: #000000;
+    --background-dark: rgba(0, 0, 0, 0.9);
+    --scanline-color: rgba(0, 255, 0, 0.03);
+    --terminal-font: 'Courier Prime', monospace;
+    --glow-intensity: 0 0 5px;
+}
+
+/* Corpo base per tutti i terminali */
+.terminal-body {
+    font-family: var(--terminal-font);
+    background: var(--background-black);
+    color: var(--primary-green);
+    min-height: 100vh;
+    position: relative;
+}
+
+/* Effetto scanlines universale */
+.terminal-body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        var(--scanline-color) 2px,
+        var(--scanline-color) 4px
+    );
+    pointer-events: none;
+    z-index: 1000;
+    animation: scan-lines 0.1s linear infinite;
+}
+
+@keyframes scan-lines {
+    0% { background-position: 0 0; }
+    100% { background-position: 0 4px; }
+}
+
+/* Animazioni globali per glitch */
+@keyframes glitch-effect {
+    0%, 100% { transform: translate(0); }
+    20% { transform: translate(-2px, 2px); }
+    40% { transform: translate(-2px, -2px); }
+    60% { transform: translate(2px, 2px); }
+    80% { transform: translate(2px, -2px); }
+}
+
+@keyframes text-glitch {
+    0% { text-shadow: 2px 2px var(--primary-red), -2px -2px #0000ff; }
+    25% { text-shadow: -2px 2px var(--primary-red), 2px -2px #0000ff; }
+    50% { text-shadow: 2px -2px var(--primary-red), -2px 2px #0000ff; }
+    75% { text-shadow: -2px -2px var(--primary-red), 2px 2px #0000ff; }
+    100% { text-shadow: 2px 2px var(--primary-red), -2px -2px #0000ff; }
+}
+
+@keyframes flicker {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 1; }
+}
+
+/* Classi utility per effetti */
+.glitch {
+    animation: glitch-effect 3s infinite;
+}
+
+.text-glitch {
+    animation: text-glitch 0.5s infinite;
+}
+
+.flicker {
+    animation: flicker 2s infinite alternate;
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+/* Classi per colori terminal */
+.green { color: var(--primary-green); }
+.red { color: var(--primary-red); }
+.cyan { color: var(--primary-cyan); }
+.yellow { color: var(--primary-yellow); }
+
+/* Glow effects */
+.glow-green { text-shadow: var(--glow-intensity) var(--primary-green); }
+.glow-red { text-shadow: var(--glow-intensity) var(--primary-red); }
+
+/* Border styles per terminali */
+.terminal-border {
+    border: 2px solid var(--primary-green);
+    background: rgba(0, 255, 0, 0.1);
+}
+
+.error-border {
+    border: 2px solid var(--primary-red);
+    background: rgba(255, 0, 0, 0.1);
+}
+
+/* Progress bars universali */
+.progress-container {
+    width: 100%;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid var(--primary-green);
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-green), var(--primary-yellow), var(--primary-red));
+    transition: width 0.3s ease;
+}
+
+/* Responsive design per terminali */
+@media (max-width: 768px) {
+    .terminal-body {
+        font-size: 0.8em;
+        padding: 1em;
+    }
+
+    .terminal-header {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
+
+/* ASCII Art helpers */
+.ascii-art {
+    font-family: var(--terminal-font);
+    line-height: 1;
+    white-space: pre;
+    letter-spacing: 0;
+    font-size: 0.8em;
+}
+
+/* Status indicators */
+.status-critical { color: var(--primary-red); animation: pulse 1s infinite; }
+.status-warning { color: var(--primary-yellow); }
+.status-ok { color: var(--primary-green); }
+.status-info { color: var(--primary-cyan); }
+
+/* Hidden elements per ARG */
+.hidden-trigger {
+    position: absolute;
+    opacity: 0;
+    pointer-events: all;
+    cursor: pointer;
+}
+
+.hidden-trigger:hover {
+    opacity: 0.1;
+    background: var(--primary-red);
+}
+
+/* Print styles per documenti fake */
+@media print {
+    .terminal-body {
+        background: white !important;
+        color: black !important;
+    }
+
+    .terminal-body::before {
+        display: none;
+    }
+
+    .glitch, .flicker, .pulse {
+        animation: none;
+    }
+}
