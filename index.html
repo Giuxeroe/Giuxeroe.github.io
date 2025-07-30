@@ -3,383 +3,132 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>∎∎∎∎█ BREACH DETECTED █∎∎∎∎</title>
+    <title>Archeologia del Server</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap');
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: 'Courier Prime', monospace;
-            background: #000000;
-            color: #00ff00;
-            padding: 1em;
-            min-height: 100vh;
-            overflow-x: hidden;
-            position: relative;
-            animation: scan-lines 0.1s linear infinite;
+            font-family: 'Georgia', serif;
+            background: #f4f1ea;
+            color: #2e2b29;
+            padding: 2em;
+            max-width: 800px;
+            margin: auto;
         }
-
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: repeating-linear-gradient(
-                0deg,
-                transparent,
-                transparent 2px,
-                rgba(0, 255, 0, 0.03) 2px,
-                rgba(0, 255, 0, 0.03) 4px
-            );
-            pointer-events: none;
-            z-index: 1000;
-        }
-
-        @keyframes scan-lines {
-            0% { background-position: 0 0; }
-            100% { background-position: 0 4px; }
-        }
-
-        .glitch {
-            position: relative;
-            animation: glitch-effect 3s infinite;
-        }
-
-        @keyframes glitch-effect {
-            0%, 100% { transform: translate(0); }
-            20% { transform: translate(-2px, 2px); }
-            40% { transform: translate(-2px, -2px); }
-            60% { transform: translate(2px, 2px); }
-            80% { transform: translate(2px, -2px); }
-        }
-
-        .terminal-header {
-            border: 2px solid #00ff00;
-            padding: 10px;
-            margin-bottom: 20px;
-            background: rgba(0, 255, 0, 0.1);
-            animation: flicker 2s infinite alternate;
-        }
-
-        @keyframes flicker {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.8; }
-        }
-
-        .corrupted-title {
+        h1 {
             text-align: center;
             font-size: 2.5em;
             margin-bottom: 0.5em;
-            text-shadow: 2px 2px #ff0000, -2px -2px #0000ff;
-            animation: title-glitch 0.5s infinite;
         }
-
-        @keyframes title-glitch {
-            0% { text-shadow: 2px 2px #ff0000, -2px -2px #0000ff; }
-            25% { text-shadow: -2px 2px #ff0000, 2px -2px #0000ff; }
-            50% { text-shadow: 2px -2px #ff0000, -2px 2px #0000ff; }
-            75% { text-shadow: -2px -2px #ff0000, 2px 2px #0000ff; }
-            100% { text-shadow: 2px 2px #ff0000, -2px -2px #0000ff; }
-        }
-
-        .error-overlay {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(255, 0, 0, 0.9);
-            color: #ffffff;
-            padding: 20px;
-            border: 3px solid #ff0000;
-            z-index: 999;
-            animation: error-pulse 1s infinite;
-            display: none;
-        }
-
-        @keyframes error-pulse {
-            0%, 100% { opacity: 0.9; }
-            50% { opacity: 0.5; }
-        }
-
-        .corrupted-gallery {
+        .gallery {
             display: flex;
             flex-direction: column;
-            gap: 1em;
+            gap: 1.5em;
         }
-
-        .corrupted-entry {
-            background: rgba(0, 255, 0, 0.1);
-            border-left: 6px solid #ff0000;
+        .entry {
+            background: #fffefb;
+            border-left: 6px solid #a52a2a;
             padding: 1em;
-            border: 1px solid #00ff00;
-            animation: entry-corruption 4s infinite;
-            position: relative;
-            overflow: hidden;
+            box-shadow: 2px 2px 6px rgba(0,0,0,0.1);
         }
-
-        @keyframes entry-corruption {
-            0%, 90%, 100% { background: rgba(0, 255, 0, 0.1); }
-            95% { background: rgba(255, 0, 0, 0.3); }
-        }
-
-        .corrupted-entry::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-            animation: scan 3s infinite;
-        }
-
-        @keyframes scan {
-            0% { left: -100%; }
-            100% { left: 100%; }
-        }
-
-        .corrupted-entry h2 {
+        .entry h2 {
             margin: 0;
-            color: #00ff00;
-            text-shadow: 1px 1px #ff0000;
         }
-
-        .corrupted-entry a {
+        .entry a {
             text-decoration: none;
-            color: #00ffff;
-            position: relative;
+            color: #5b2c2c;
         }
-
-        .corrupted-entry a:hover {
-            color: #ff0000;
-            text-shadow: 0 0 5px #ff0000;
-        }
-
-        .breach-notice {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(255, 0, 0, 0.9);
-            color: #ffffff;
-            padding: 10px;
-            border: 2px solid #ff0000;
-            font-size: 0.8em;
-            animation: breach-blink 1s infinite;
-        }
-
-        @keyframes breach-blink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0; }
-        }
-
-        .access-prompt {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            background: rgba(0, 0, 0, 0.9);
-            color: #00ff00;
-            padding: 10px;
-            border: 1px solid #00ff00;
-            font-size: 0.7em;
-            cursor: pointer;
-            animation: access-fade 2s infinite;
-        }
-
-        @keyframes access-fade {
-            0%, 70%, 100% { opacity: 0.3; }
-            80%, 90% { opacity: 1; }
-        }
-
-        .hidden-access {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 50px;
-            background: transparent;
-            cursor: pointer;
-        }
-
-        .matrix-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: -1;
-            opacity: 0.1;
+        .entry a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
-    <div class="access-prompt" onclick="showAccessDialog()">
-        [UNAUTHORIZED ACCESS DETECTED]
+    <h1>Archeologia del Server</h1>
+    <div class="gallery">
+        
+    <div class="entry">
+        <h2>Agenzia</h2>
+        <p>Agenzia immobiliare che recensiva case</p>
+        <p><a href="agenzia.html">Scopri di più →</a></p>
     </div>
-
-    <div class="terminal-header glitch">
-        <div style="text-align: center;">
-            ██████╗ ███████╗███████╗██████╗     ██╗    ██╗███████╗██████╗
-            ██╔══██╗██╔════╝██╔════╝██╔══██╗    ██║    ██║██╔════╝██╔══██╗
-            ██║  ██║█████╗  █████╗  ██████╔╝    ██║ █╗ ██║█████╗  ██████╔╝
-            ██║  ██║██╔══╝  ██╔══╝  ██╔═══╝     ██║███╗██║██╔══╝  ██╔══██╗
-            ██████╔╝███████╗███████╗██║         ╚███╔███╔╝███████╗██████╔╝
-            ╚═════╝ ╚══════╝╚══════╝╚═╝          ╚══╝╚══╝ ╚══════╝╚═════╝
-
-            M I N I N G   C O L L E C T I V E
-        </div>
-        <div style="margin-top: 10px; text-align: center; color: #ff0000;">
-            ▲ SYSTEM BREACH DETECTED ▲ IP: █37.█17.█46.██1 ▲ TRACED ▲
-        </div>
+    
+    <div class="entry">
+        <h2>Bosco Verticale</h2>
+        <p>Albero che finisce come grattacielo, si dice che dei mostri esplosivi vi ci albergassero</p>
+        <p><a href="bosco-verticale.html">Scopri di più →</a></p>
     </div>
-
-    <h1 class="corrupted-title glitch">Arc█eo█og█a del ██rver</h1>
-
-    <div class="corrupted-gallery">
-        <div class="corrupted-entry">
-            <h2>A██nz█a</h2>
-            <p>A██nz█a ████bil█are ███ rec██s█va ███e</p>
-            <p><a href="agenzia.html" onclick="trackAccess('agenzia')">ACCESS_POINT_001 →</a></p>
-        </div>
-
-        <div class="corrupted-entry">
-            <h2>█████ Verticale</h2>
-            <p>Al█ero ███ fin████ ████ grat████lo, si ████ ███ dei ████t█i espl█████ ██ ci alb█rg█████ro</p>
-            <p><a href="bosco-verticale.html" onclick="trackAccess('bosco')">ACCESS_POINT_002 →</a></p>
-        </div>
-
-        <div class="corrupted-entry">
-            <h2>████ di ███ Amanti</h2>
-            <p>Al███o ███ ████ ████ alle ████tte di ███ inn████rati</p>
-            <p><a href="casa-amanti.html" onclick="trackAccess('amanti')">ACCESS_POINT_003 →</a></p>
-        </div>
-
-        <div class="corrupted-entry">
-            <h2>████ F██go</h2>
-            <p>████ fun██ ████ viv███ un anz████ s██g█o</p>
-            <p><a href="casa-fungo.html" onclick="trackAccess('fungo')">ACCESS_POINT_004 →</a></p>
-        </div>
-
-        <div class="corrupted-entry">
-            <h2>Mi██era</h2>
-            <p>Una ███iera d'oro</p>
-            <p><a href="miniera.html" onclick="trackAccess('miniera')">ACCESS_POINT_005 →</a></p>
-        </div>
-
-        <div class="corrupted-entry">
-            <h2>Inc██ent</h2>
-            <p>Il █u██o di un ████o inc██ente</p>
-            <p><a href="incident.html" onclick="trackAccess('incident')">ACCESS_POINT_006 →</a></p>
-        </div>
-
-        <div class="corrupted-entry" style="background: rgba(255, 0, 0, 0.2);">
-            <h2>DEEP_WEB_TERMINAL</h2>
-            <p>>>> BREACH DETECTED IN MINING OPERATIONS</p>
-            <p><a href="#" onclick="initTerminalAccess()" style="color: #ff0000;">EMERGENCY_ACCESS →</a></p>
-        </div>
+    
+    <div class="entry">
+        <h2>Casa di Due Amanti</h2>
+        <p>Albero che dava vita alle casette di due innamorati</p>
+        <p><a href="casa-amanti.html">Scopri di più →</a></p>
     </div>
-
-    <div class="breach-notice">
-        ⚠ UNAUTHORIZED ACCESS ⚠<br>
-        IP TRACKING INITIATED<br>
-        TIME: <span id="timer">00:00</span>
+    
+    <div class="entry">
+        <h2>Casa Fungo</h2>
+        <p>Casa fungo dove viveva un anziano saggio</p>
+        <p><a href="casa-fungo.html">Scopri di più →</a></p>
     </div>
-
-    <div class="error-overlay" id="errorOverlay">
-        <h3>SISTEMA COMPROMESSO</h3>
-        <p>Rilevata intrusione nel server...</p>
-        <p>Inizializzazione protocolli di sicurezza...</p>
-        <button onclick="closeError()" style="background: #ff0000; color: white; border: none; padding: 5px 10px; margin-top: 10px;">CHIUDI</button>
+    
+    <div class="entry">
+        <h2>Torta di Carote</h2>
+        <p>Posto dove veniva prodotto il cibo del villaggio</p>
+        <p><a href="torta-carote.html">Scopri di più →</a></p>
     </div>
-
-    <div class="hidden-access" onclick="hiddenAccess()"></div>
-
-    <script>
-        let accessCount = parseInt(localStorage.getItem('dwmc_access_count') || '0');
-        let startTime = Date.now();
-
-        // Timer di tensione
-        function updateTimer() {
-            let elapsed = Math.floor((Date.now() - startTime) / 1000);
-            let minutes = Math.floor(elapsed / 60);
-            let seconds = elapsed % 60;
-            document.getElementById('timer').textContent =
-                String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
-        }
-        setInterval(updateTimer, 1000);
-
-        // Effetti di corruzione casuale
-        function randomCorruption() {
-            const entries = document.querySelectorAll('.corrupted-entry');
-            const randomEntry = entries[Math.floor(Math.random() * entries.length)];
-            randomEntry.style.background = 'rgba(255, 0, 0, 0.3)';
-            setTimeout(() => {
-                randomEntry.style.background = 'rgba(0, 255, 0, 0.1)';
-            }, 200);
-        }
-        setInterval(randomCorruption, 3000);
-
-        // Tracciamento accessi
-        function trackAccess(point) {
-            accessCount++;
-            localStorage.setItem('dwmc_access_count', accessCount);
-            localStorage.setItem('dwmc_last_access', point);
-            console.log('ACCESS_LOGGED:', point);
-        }
-
-        // Sistema di accesso nascosto
-        function hiddenAccess() {
-            const password = prompt('INSERIRE PASSWORD DI ACCESSO:');
-            if (password === 'DEEP_MINING_777') {
-                window.location.href = 'terminal.html';
-            } else if (password === null) {
-                return;
-            } else {
-                document.getElementById('errorOverlay').style.display = 'block';
-                setTimeout(() => {
-                    document.getElementById('errorOverlay').style.display = 'none';
-                }, 3000);
-            }
-        }
-
-        function showAccessDialog() {
-            const access = prompt('CODICE AUTORIZZAZIONE RICHIESTO:');
-            if (access === 'BREACH_PROTOCOL') {
-                hiddenAccess();
-            }
-        }
-
-        function initTerminalAccess() {
-            if (confirm('AVVIARE PROTOCOLLO DI EMERGENZA?')) {
-                hiddenAccess();
-            }
-        }
-
-        function closeError() {
-            document.getElementById('errorOverlay').style.display = 'none';
-        }
-
-        // Auto-mostra errore dopo 10 secondi
-        setTimeout(() => {
-            if (Math.random() > 0.5) {
-                document.getElementById('errorOverlay').style.display = 'block';
-                setTimeout(() => {
-                    document.getElementById('errorOverlay').style.display = 'none';
-                }, 4000);
-            }
-        }, 10000);
-
-        // Effetto typing casuale nel console
-        setInterval(() => {
-            console.log('MINING_OPERATION_' + Math.floor(Math.random() * 1000).toString().padStart(3, '0') + '_ACTIVE');
-        }, 5000);
-    </script>
+    
+    <div class="entry">
+        <h2>Confine</h2>
+        <p>Confine rosso che separava due nazioni</p>
+        <p><a href="confine.html">Scopri di più →</a></p>
+    </div>
+    
+    <div class="entry">
+        <h2>Forgia Revideo</h2>
+        <p>Una famosa forgia</p>
+        <p><a href="forgia-revideo.html">Scopri di più →</a></p>
+    </div>
+    
+    <div class="entry">
+        <h2>Gianni's Town</h2>
+        <p>La città di un certo Gianni</p>
+        <p><a href="gianni-town.html">Scopri di più →</a></p>
+    </div>
+    
+    <div class="entry">
+        <h2>Incident</h2>
+        <p>Il luogo di un certo incidente</p>
+        <p><a href="incident.html">Scopri di più →</a></p>
+    </div>
+    
+    <div class="entry">
+        <h2>Magazzino</h2>
+        <p>Un magazzino</p>
+        <p><a href="magazzino.html">Scopri di più →</a></p>
+    </div>
+    
+    <div class="entry">
+        <h2>Miniera</h2>
+        <p>Una miniera d'oro</p>
+        <p><a href="miniera.html">Scopri di più →</a></p>
+    </div>
+    
+    <div class="entry">
+        <h2>Monte Verduro</h2>
+        <p>Un'antica città</p>
+        <p><a href="monte-verduro.html">Scopri di più →</a></p>
+    </div>
+    
+    <div class="entry">
+        <h2>Mr Fungo</h2>
+        <p>Il fungo dell'anziano saggio</p>
+        <p><a href="mr-fungo.html">Scopri di più →</a></p>
+    </div>
+    
+    <div class="entry">
+        <h2>Primo Villaggio</h2>
+        <p>Il primo insediamento di una grande nazione</p>
+        <p><a href="primo-villaggio.html">Scopri di più →</a></p>
+    </div>
+    
+    </div>
 </body>
 </html>
