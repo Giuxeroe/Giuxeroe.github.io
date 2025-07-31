@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Blog - Error 404</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="../../assets/css/deep-web.css">
+    <link rel="stylesheet" href="../../assets/css/glitch.css">
+
+    <style>
+        body {
+            background: #f4f1ea;
+            color: #2e2b29;
+            font-family: 'Georgia', serif;
+            transition: all 2s ease;
+        }
+
+        .blog-header {
+            text-align: center;
+            padding: 40px 0;
+            background: linear-gradient(to bottom, #ffffff, #f8f8f8);
+            border-bottom: 3px solid #d4af37;
+        }
+
+        .blog-title {
+            font-size: 3em;
+            color: #8b4513;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .blog-subtitle {
+            font-size: 1.2em;
+            color: #666666;
+            font-style: italic;
+        }
+
+        .blog-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .blog-post {
+            background: #ffffff;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            border-left: 5px solid #d4af37;
+        }
+
+        .post-title {
+            color: #8b4513;
+            font-size: 1.8em;
+            margin-bottom: 15px;
+        }
+
+        .post-meta {
+            color: #999999;
+            font-size: 0.9em;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eeeeee;
+            padding-bottom: 10px;
+        }
+
+        .post-content {
+            line-height: 1.7;
+            color: #444444;
+        }
+
+        .corruption-start {
+            animation: corruption-begin 3s ease-in-out;
+        }
+
+        @keyframes corruption-begin {
+            0% { opacity: 1; }
+            50% { opacity: 0.8; filter: blur(1px); }
+            100% { opacity: 1; }
+        }
+
+        .corrupted-text {
+            background: #ff0000;
+            color: #ffffff;
+            padding: 2px 4px;
+            font-family: 'Courier New', monospace;
+            animation: text-glitch 0.3s infinite;
+        }
+
+        @keyframes text-glitch {
+            0%, 100% { transform: translate(0); }
+            25% { transform: translate(-1px, 1px); }
+            50% { transform: translate(1px, -1px); }
+            75% { transform: translate(-1px, -1px); }
+        }
+
+        .hidden-message {
+            opacity: 0;
+            color: #00ff00;
+            background: #000000;
+            font-family: 'Courier New', monospace;
+            padding: 10px;
+            margin: 10px 0;
+            transition: opacity 1s ease;
+        }
+
+        .hidden-message.revealed {
+            opacity: 1;
+        }
+
+        .error-404 {
+            text-align: center;
+            padding: 50px;
+            background: #000000;
+            color: #ff0000;
+            font-family: 'Courier New', monospace;
+            margin: 20px 0;
+            border: 2px solid #ff0000;
+            display: none;
+        }
+
+        .error-404.active {
+            display: block;
+            animation: error-flash 1s infinite;
+        }
+
+        @keyframes error-flash {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.7; }
+        }
+
+        .coordinates-hint {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #00ff00;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            border: 1px solid #00ff00;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .coordinates-hint.visible {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body id="blog-body">
+    <!-- Normal Blog Header -->
+    <header class="blog-header">
+        <h1 class="blog-title">My Personal Journey</h1>
+        <div class="blog-subtitle">Exploring life, technology, and the unknown</div>
+    </header>
+
+    <div class="blog-content">
+        <!-- Normal Blog Posts -->
+        <article class="blog-post">
+            <h2 class="post-title">Welcome to My Blog</h2>
+            <div class="post-meta">Posted on March 15, 2024 by Sarah M.</div>
+            <div class="post-content">
+                <p>Hello everyone! Welcome to my personal blog where I share my thoughts about technology, life, and interesting discoveries I make along the way.</p>
+                <p>I've always been fascinated by the hidden corners of the internet and the stories they tell. Recently, I've been researching some very interesting <span class="corruption-trigger" data-corrupt="data mining operations">online communities</span> that seem to operate in the shadows.</p>
+                <p>I hope you'll join me on this journey of discovery. Feel free to leave comments and share your own experiences!</p>
+            </div>
+        </article>
+
+        <article class="blog-post">
+            <h2 class="post-title">Strange Discoveries</h2>
+            <div class="post-meta">Posted on March 18, 2024 by Sarah M.</div>
+            <div class="post-content">
+                <p>I've been digging deeper into some unusual online activities and found something quite disturbing. There seems to be a network of people involved in what they call <span class="corruption-trigger" data-corrupt="DEEP WEB MINING COLLECTIVE">"digital archaeology"</span>.</p>
+                <p>At first, it seemed innocent enough - just people sharing interesting finds from old websites and forgotten forums. But the deeper I go, the more I realize this might be something much more <span class="corruption-trigger" data-corrupt="CLASSIFIED OPERATIONS">serious</span>.</p>
+                <p>I found some coordinates that keep appearing in their communications: <span class="corruption-trigger" data-corrupt="0, 64, 0 - SPAWN POINT">various locations</span> that seem to have special significance to them.</p>
+
+                <div class="hidden-message" id="hidden-1">
+                    ERROR: BLOG COMPROMISED
+                    SURFACE BREACH DETECTED
+                    TERMINATING CONNECTION...
+                </div>
+            </div>
+        </article>
+
+        <article class="blog-post">
+            <h2 class="post-title">I Think I'm Being Watched</h2>
+            <div class="post-meta">Posted on March 22, 2024 by Sarah M.</div>
+            <div class="post-content">
+                <p>Something is very wrong. Ever since I started investigating this <span class="corruption-trigger" data-corrupt="MINING COLLECTIVE">group</span>, strange things have been happening to my computer.</p>
+                <p>Files are appearing that I didn't create. My browser history shows visits to sites I've never been to. And sometimes I find my computer logged into systems I don't recognize.</p>
+                <p>I tried to stop investigating, but I can't. I feel like I'm being pulled deeper into something I don't understand. The coordinates they use - <span class="corruption-trigger" data-corrupt="-247, 45, 892 - BUNKER LOCATION">these numbers</span> - they mean something important.</p>
+
+                <div class="hidden-message" id="hidden-2">
+                    SUBJECT SARAH M. - STATUS: COMPROMISED
+                    SURFACE PROTOCOL BREACH CONFIRMED
+                    INITIATE RECRUITMENT SEQUENCE
+                </div>
+
+                <p>If anyone reading this knows what's happening to me, please help. I think I'm in over my head.</p>
+            </div>
+        </article>
+
+        <!-- Error 404 Section (appears later) -->
+        <div class="error-404" id="error-section">
+            <h1>ERROR 404 - BLOG NOT FOUND</h1>
+            <p>The requested blog has been terminated due to security violations.</p>
+            <p>User "Sarah M." has been classified as MISSING.</p>
+            <p>Investigation into unauthorized access is ongoing.</p>
+            <br>
+            <p>If you believe you have reached this page in error, please disconnect immediately.</p>
+            <p>Your IP address has been logged for security purposes.</p>
+        </div>
+    </div>
+
+    <!-- Coordinates Hint -->
+    <div class="coordinates-hint" id="coords-hint">
+        Mining Coordinates Detected:<br>
+        0, 64, 0<br>
+        -247, 45, 892
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        class CorruptedBlog {
+            constructor() {
+                this.corruptionLevel = 0;
+                this.corruptionInterval = null;
+                this.hiddenMessages = [];
+
+                this.initializeCorruption();
+            }
+
+            initializeCorruption() {
+                // Start corruption after a delay
+                setTimeout(() => {
+                    this.startCorruptionSequence();
+                }, 3000);
+
+                // Add click listeners to corruption triggers
+                document.querySelectorAll('.corruption-trigger').forEach(trigger => {
+                    trigger.addEventListener('mouseover', () => {
+                        this.triggerCorruption(trigger);
+                    });
+                });
+            }
+
+            startCorruptionSequence() {
+                this.corruptionInterval = setInterval(() => {
+                    this.increaseCorruption();
+                }, 2000);
+            }
+
+            triggerCorruption(element) {
+                const corruptedText = element.getAttribute('data-corrupt');
+                const originalText = element.textContent;
+
+                // Visual glitch effect
+                element.style.background = '#ff0000';
+                element.style.color = '#ffffff';
+                element.style.fontFamily = '"Courier New", monospace';
+                element.style.padding = '2px 4px';
+                element.style.animation = 'text-glitch 0.3s infinite';
+
+                setTimeout(() => {
+                    element.textContent = corruptedText;
+                    element.classList.add('corrupted-text');
+                }, 500);
+
+                // Increase corruption level
+                this.corruptionLevel += 10;
+                this.checkCorruptionThreshold();
+            }
+
+            increaseCorruption() {
+                this.corruptionLevel += 5;
+
+                // Random text corruption
+                if (Math.random() < 0.3) {
+                    this.corruptRandomText();
+                }
+
+                // Random style changes
+                if (Math.random() < 0.2) {
+                    this.corruptStyling();
+                }
+
+                this.checkCorruptionThreshold();
+            }
+
+            corruptRandomText() {
+                const textElements = document.querySelectorAll('p, h1, h2, h3');
+                const element = textElements[Math.floor(Math.random() * textElements.length)];
+
+                if (element && !element.classList.contains('corrupted-text')) {
+                    const originalText = element.textContent;
+                    const corruptedText = this.scrambleText(originalText);
+
+                    element.textContent = corruptedText;
+                    element.classList.add('corrupted-text');
+
+                    setTimeout(() => {
+                        element.textContent = originalText;
+                        element.classList.remove('corrupted-text');
+                    }, 1000);
+                }
+            }
+
+            scrambleText(text) {
+                const glitchChars = '█▓▒░▄▀■□▪▫∎∏≡≢≣≤≥⊂⊃⊆⊇◊○◌◍◎●◐◑◒◓';
+                return text.split('').map(char => {
+                    if (Math.random() < 0.3 && char !== ' ') {
+                        return glitchChars[Math.floor(Math.random() * glitchChars.length)];
+                    }
+                    return char;
+                }).join('');
+            }
+
+            corruptStyling() {
+                const body = document.getElementById('blog-body');
+
+                // Random color shifts
+                const filters = [
+                    'hue-rotate(180deg)',
+                    'invert(1)',
+                    'saturate(0)',
+                    'contrast(2)',
+                    'sepia(1)'
+                ];
+
+                const randomFilter = filters[Math.floor(Math.random() * filters.length)];
+                body.style.filter = randomFilter;
+
+                setTimeout(() => {
+                    body.style.filter = '';
+                }, 500);
+            }
+
+            checkCorruptionThreshold() {
+                if (this.corruptionLevel >= 30 && !this.hiddenMessages.includes('hidden-1')) {
+                    this.revealHiddenMessage('hidden-1');
+                    this.hiddenMessages.push('hidden-1');
+                }
+
+                if (this.corruptionLevel >= 60 && !this.hiddenMessages.includes('hidden-2')) {
+                    this.revealHiddenMessage('hidden-2');
+                    this.hiddenMessages.push('hidden-2');
+                }
+
+                if (this.corruptionLevel >= 100) {
+                    this.finalCorruption();
+                }
+            }
+
+            revealHiddenMessage(messageId) {
+                const message = document.getElementById(messageId);
+                if (message) {
+                    message.classList.add('revealed');
+                }
+            }
+
+            finalCorruption() {
+                clearInterval(this.corruptionInterval);
+
+                // Complete blog takeover
+                setTimeout(() => {
+                    this.transformToBreach();
+                }, 2000);
+            }
+
+            transformToBreach() {
+                // Hide normal content
+                document.querySelector('.blog-header').style.display = 'none';
+                document.querySelectorAll('.blog-post').forEach(post => {
+                    post.style.display = 'none';
+                });
+
+                // Show error section
+                document.getElementById('error-section').classList.add('active');
+
+                // Change body styling
+                const body = document.getElementById('blog-body');
+                body.style.background = '#000000';
+                body.style.color = '#00ff00';
+                body.style.fontFamily = '"Courier New", monospace';
+
+                // Show coordinates hint
+                document.getElementById('coords-hint').classList.add('visible');
+
+                // Show final message
+                setTimeout(() => {
+                    this.showBreachMessage();
+                }, 3000);
+            }
+
+            showBreachMessage() {
+                const breachMessage = document.createElement('div');
+                breachMessage.style.position = 'fixed';
+                breachMessage.style.top = '50%';
+                breachMessage.style.left = '50%';
+                breachMessage.style.transform = 'translate(-50%, -50%)';
+                breachMessage.style.background = '#000000';
+                breachMessage.style.color = '#00ff00';
+                breachMessage.style.padding = '30px';
+                breachMessage.style.border = '2px solid #00ff00';
+                breachMessage.style.fontFamily = '"Courier New", monospace';
+                breachMessage.style.textAlign = 'center';
+                breachMessage.style.zIndex = '10000';
+                breachMessage.innerHTML = `
+                    <h2>SURFACE BREACH COMPLETE</h2>
+                    <p>Subject Sarah M. successfully recruited.</p>
+                    <p>Mining coordinates revealed:</p>
+                    <p style="color: #ffff00; font-size: 1.2em;">0, 64, 0</p>
+                    <p style="color: #ffff00; font-size: 1.2em;">-247, 45, 892</p>
+                    <br>
+                    <p>Welcome to the Deep Web Mining Collective.</p>
+                    <br>
+                    <button onclick="window.location.href='../surface/entry-point.html'"
+                            style="background: #00ff00; color: #000000; padding: 10px 20px; border: none; cursor: pointer;">
+                        CONTINUE TO SURFACE ACCESS
+                    </button>
+                `;
+
+                document.body.appendChild(breachMessage);
+            }
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            window.corruptedBlog = new CorruptedBlog();
+        });
+    </script>
+</body>
+</html>

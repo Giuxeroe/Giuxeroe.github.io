@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Red Room Access - Final Phase</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="../../assets/css/deep-web.css">
+    <link rel="stylesheet" href="../../assets/css/glitch.css">
+    <link rel="stylesheet" href="../../assets/css/terminal.css">
+
+    <!-- Audio Elements -->
+    <audio id="success-sound" preload="auto">
+        <source src="../../assets/sounds/access-granted.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="alert-sound" preload="auto">
+        <source src="../../assets/sounds/alert.mp3" type="audio/mpeg">
+    </audio>
+
+    <style>
+        body {
+            background: linear-gradient(45deg, #0a0000, #000000);
+            overflow-x: hidden;
+        }
+
+        .red-room-header {
+            background: linear-gradient(45deg, #330000, #000000);
+            border: 4px solid #ff0000;
+            color: #ff0000;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .red-room-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,0,0,0.2), transparent);
+            animation: red-scan 3s infinite;
+        }
+
+        @keyframes red-scan {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .red-room-title {
+            font-size: 3.5em;
+            margin: 0;
+            text-shadow:
+                0 0 10px #ff0000,
+                0 0 20px #ff0000,
+                0 0 30px #ff0000;
+            animation: red-pulse 2s infinite;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+        }
+
+        @keyframes red-pulse {
+            0%, 100% {
+                text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000, 0 0 30px #ff0000;
+                transform: scale(1);
+            }
+            50% {
+                text-shadow: 0 0 20px #ff0000, 0 0 30px #ff0000, 0 0 40px #ff0000;
+                transform: scale(1.02);
+            }
+        }
+
+        .countdown-display {
+            font-size: 1.5em;
+            margin-top: 15px;
+            color: #ffff00;
+            animation: countdown-flash 1s infinite;
+        }
+
+        @keyframes countdown-flash {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+
+        .access-requirements {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .requirement-panel {
+            background: rgba(255, 0, 0, 0.1);
+            border: 2px solid #ff0000;
+            padding: 25px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .requirement-panel.completed {
+            border-color: #00ff00;
+            background: rgba(0, 255, 0, 0.1);
+        }
+
+        .requirement-panel.completed::before {
+            content: '✓';
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            background: #00ff00;
+            color: #000000;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .requirement-title {
+            color: #ff0000;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .requirement-panel.completed .requirement-title {
+            color: #00ff00;
+        }
+
+        .requirement-description {
+            color: #cccccc;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .requirement-status {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .status-pending {
+            color: #ffff00;
+        }
+
+        .status-completed {
+            color: #00ff00;
+        }
+
+        .collective-members {
+            background: #1a0000;
+            border: 3px solid #ff0000;
+            padding: 30px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .members-title {
+            color: #ff0000;
+            font-size: 2em;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        .members-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .member-slot {
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid #333333;
+            padding: 15px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .member-slot.active {
+            border-color: #00ff00;
+            background: rgba(0, 255, 0, 0.1);
+        }
+
+        .member-slot.pending {
+            border-color: #ffff00;
+            background: rgba(255, 255, 0, 0.1);
+            animation: pending-glow 2s infinite;
+        }
+
+        @keyframes pending-glow {
+            0%, 100% { box-shadow: 0 0 5px rgba(255, 255, 0, 0.3); }
+            50% { box-shadow: 0 0 15px rgba(255, 255, 0, 0.6); }
+        }
+
+        .member-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .member-status {
+            font-size: 0.8em;
+            text-transform: uppercase;
+        }
+
+        .final-sequence {
+            background: linear-gradient(45deg, #330000, #660000);
+            border: 4px solid #ff0000;
+            padding: 40px;
+            text-align: center;
+            display: none;
+        }
+
+        .final-sequence.active {
+            display: block;
+            animation: final-reveal 3s ease-in-out;
+        }
+
+        @keyframes final-reveal {
+            0% { opacity: 0; transform: scale(0.8) rotate(-2deg); }
+            50% { opacity: 0.5; transform: scale(1.1) rotate(1deg); }
+            100% { opacity: 1; transform: scale(1) rotate(0deg); }
+        }
+
+        .sequence-title {
+            color: #ff0000;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px #ff0000;
+        }
+
+        .sequence-content {
+            color: #ffffff;
+            font-size: 1.2em;
+            line-height: 1.8;
+            margin-bottom: 30px;
+        }
+
+        .final-key {
+            background: #000000;
+            border: 3px solid #ff0000;
+            color: #ff0000;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.5em;
+            letter-spacing: 3px;
+            margin: 20px 0;
+            text-align: center;
+            animation: key-glow 1.5s infinite;
+        }
+
+        @keyframes key-glow {
+            0%, 100% { box-shadow: 0 0 10px #ff0000; }
+            50% { box-shadow: 0 0 25px #ff0000, 0 0 35px #ff0000; }
+        }
+
+        .revelation-button {
+            background: linear-gradient(45deg, #ff0000, #cc0000);
+            border: none;
+            color: #ffffff;
+            padding: 20px 40px;
+            font-size: 1.3em;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+        }
+
+        .revelation-button:hover {
+            background: linear-gradient(45deg, #ffffff, #cccccc);
+            color: #ff0000;
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.8);
+            transform: scale(1.05);
+        }
+
+        .participants-counter {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 0, 0, 0.9);
+            border: 2px solid #ff0000;
+            color: #ffffff;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            z-index: 1000;
+        }
+
+        .progress-indicators {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .progress-item {
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid #333333;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .progress-item.completed {
+            border-color: #00ff00;
+            background: rgba(0, 255, 0, 0.1);
+        }
+
+        .progress-percentage {
+            font-size: 2em;
+            font-weight: bold;
+            color: #ff0000;
+        }
+
+        .progress-item.completed .progress-percentage {
+            color: #00ff00;
+        }
+
+        .progress-label {
+            color: #cccccc;
+            margin-top: 5px;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            .red-room-title {
+                font-size: 2.5em;
+                letter-spacing: 2px;
+            }
+
+            .access-requirements {
+                grid-template-columns: 1fr;
+            }
+
+            .members-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Participants Counter -->
+    <div class="participants-counter">
+        <div>ACTIVE PARTICIPANTS</div>
+        <div style="font-size: 2em; text-align: center;" id="participant-count">7</div>
+        <div style="font-size: 0.8em;">REQUIRED FOR ACCESS</div>
+    </div>
+
+    <div class="container">
+        <!-- Red Room Header -->
+        <div class="red-room-header">
+            <h1 class="red-room-title glitch-text" data-text="RED ROOM ACCESS">
+                RED ROOM ACCESS
+            </h1>
+            <div class="countdown-display" id="countdown">
+                FINAL SEQUENCE COUNTDOWN: <span id="countdown-timer">05:00</span>
+            </div>
+        </div>
+
+        <!-- Progress Indicators -->
+        <div class="progress-indicators">
+            <div class="progress-item" id="surface-progress">
+                <div class="progress-percentage" id="surface-percent">0%</div>
+                <div class="progress-label">Surface Breach</div>
+            </div>
+            <div class="progress-item" id="breach-progress">
+                <div class="progress-percentage" id="breach-percent">0%</div>
+                <div class="progress-label">Terminal Access</div>
+            </div>
+            <div class="progress-item" id="deep-progress">
+                <div class="progress-percentage" id="deep-percent">0%</div>
+                <div class="progress-label">Deep Web Access</div>
+            </div>
+            <div class="progress-item" id="final-progress">
+                <div class="progress-percentage" id="final-percent">0%</div>
+                <div class="progress-label">Red Room Access</div>
+            </div>
+        </div>
+
+        <!-- Access Requirements -->
+        <div class="access-requirements">
+            <div class="requirement-panel" id="req-surface">
+                <h3 class="requirement-title">Surface Clearance</h3>
+                <div class="requirement-description">
+                    Complete surface-level infiltration and gather intelligence from corrupted systems.
+                    Minimum 3 surface clues required.
+                </div>
+                <div class="requirement-status status-pending" id="surface-status">
+                    PENDING VERIFICATION
+                </div>
+            </div>
+
+            <div class="requirement-panel" id="req-terminal">
+                <h3 class="requirement-title">Terminal Breach</h3>
+                <div class="requirement-description">
+                    Successfully infiltrate secure terminal systems and decrypt operational passwords.
+                    Network mapping completion required.
+                </div>
+                <div class="requirement-status status-pending" id="terminal-status">
+                    PENDING VERIFICATION
+                </div>
+            </div>
+
+            <div class="requirement-panel" id="req-deep">
+                <h3 class="requirement-title">Deep Web Access</h3>
+                <div class="requirement-description">
+                    Establish IRC connection, access missing persons database, and analyze live surveillance streams.
+                    Pattern recognition completion required.
+                </div>
+                <div class="requirement-status status-pending" id="deep-status">
+                    PENDING VERIFICATION
+                </div>
+            </div>
+
+            <div class="requirement-panel" id="req-collective">
+                <h3 class="requirement-title">Collective Synchronization</h3>
+                <div class="requirement-description">
+                    All 7 participants must be present simultaneously for final access sequence.
+                    Temporal synchronization is critical.
+                </div>
+                <div class="requirement-status status-pending" id="collective-status">
+                    AWAITING PARTICIPANTS
+                </div>
+            </div>
+        </div>
+
+        <!-- Collective Members -->
+        <div class="collective-members">
+            <h2 class="members-title">The Collective</h2>
+            <div class="members-grid" id="members-grid">
+                <!-- Member slots will be populated by JavaScript -->
+            </div>
+            <div style="color: #ffff00; margin-top: 15px;">
+                All members must be present for final revelation
+            </div>
+        </div>
+
+        <!-- Final Sequence -->
+        <div class="final-sequence" id="final-sequence">
+            <h2 class="sequence-title">FINAL SEQUENCE INITIATED</h2>
+            <div class="sequence-content">
+                Congratulations, operative. You have successfully completed all phases of the Deep Web Mining Collective initiation process.
+                The final key has been generated and is ready for use.
+            </div>
+
+            <div class="final-key" id="final-key">
+                GENERATING FINAL KEY...
+            </div>
+
+            <div class="sequence-content">
+                Use this key to access the ultimate revelation. Everything you have discovered leads to this moment.
+                The truth about the Deep Web Mining Collective awaits.
+            </div>
+
+            <button class="revelation-button" onclick="accessRevelation()">
+                ACCESS FINAL REVELATION
+            </button>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="../../assets/js/progress-tracker.js"></script>
+    <script src="../../assets/js/glitch-effects.js"></script>
+    <script src="../../assets/js/timer-system.js"></script>
+
+    <script>
+        // Red Room Access Controller
+        class RedRoomAccess {
+            constructor() {
+                this.requirements = {
+                    surface: false,
+                    terminal: false,
+                    deep: false,
+                    collective: false
+                };
+
+                this.members = [
+                    { name: 'CollectiveAdmin', status: 'active' },
+                    { name: 'DeepMiner_01', status: 'active' },
+                    { name: 'You', status: 'pending' },
+                    { name: 'NetworkGhost', status: 'offline' },
+                    { name: 'DataHarvester', status: 'offline' },
+                    { name: 'Miner_07', status: 'offline' },
+                    { name: 'QuantumDigger', status: 'offline' }
+                ];
+
+                this.participantCount = 3; // Simulated other participants
+                this.finalKey = '';
+                this.countdownTime = 300; // 5 minutes
+
+                this.initializeAccess();
+                this.checkProgress();
+                this.startCountdown();
+                this.simulateParticipants();
+            }
+
+            initializeAccess() {
+                // Mark red room access in progress tracker
+                if (window.progressTracker) {
+                    window.progressTracker.updateProgress('final', {
+                        red_room_accessed: true,
+                        access_time: Date.now()
+                    });
+                }
+
+                this.renderMembers();
+
+                // Listen for progress updates
+                window.addEventListener('progressBroadcast', (e) => {
+                    this.updateRequirements(e.detail);
+                });
+            }
+
+            checkProgress() {
+                // Check current progress from localStorage
+                const progress = JSON.parse(localStorage.getItem('dwmc_progress') || '{}');
+
+                // Check surface completion
+                if (progress.surface?.completed && progress.surface?.clues?.length >= 3) {
+                    this.completeRequirement('surface');
+                }
+
+                // Check terminal completion
+                if (progress.breach?.completed && progress.breach?.passwords_decrypted) {
+                    this.completeRequirement('terminal');
+                }
+
+                // Check deep web completion
+                if (progress.deep?.completed &&
+                    progress.deep?.irc_connected &&
+                    progress.deep?.missing_persons_accessed) {
+                    this.completeRequirement('deep');
+                }
+
+                this.updateProgressDisplay();
+            }
+
+            updateRequirements(progressData) {
+                const { phases, currentPhase, overallProgress } = progressData;
+
+                // Update progress percentages
+                if (phases.surface?.completed) {
+                    document.getElementById('surface-percent').textContent = '100%';
+                    document.getElementById('surface-progress').classList.add('completed');
+                }
+
+                if (phases.breach?.completed) {
+                    document.getElementById('breach-percent').textContent = '100%';
+                    document.getElementById('breach-progress').classList.add('completed');
+                }
+
+                if (phases.deep?.completed) {
+                    document.getElementById('deep-percent').textContent = '100%';
+                    document.getElementById('deep-progress').classList.add('completed');
+                }
+
+                // Update final progress based on overall completion
+                const finalProgress = Math.min(overallProgress, 100);
+                document.getElementById('final-percent').textContent = finalProgress + '%';
+
+                if (finalProgress >= 100) {
+                    document.getElementById('final-progress').classList.add('completed');
+                    this.checkFinalAccess();
+                }
+            }
+
+            completeRequirement(requirement) {
+                if (this.requirements[requirement]) return;
+
+                this.requirements[requirement] = true;
+
+                // Update UI
+                const panel = document.getElementById(`req-${requirement}`);
+                const status = document.getElementById(`${requirement}-status`);
+
+                panel.classList.add('completed');
+                status.textContent = 'COMPLETED';
+                status.className = 'requirement-status status-completed';
+
+                // Play success sound
+                this.playSuccessSound();
+
+                // Check if all requirements met
+                this.checkFinalAccess();
+            }
+
+            checkFinalAccess() {
+                const allRequirementsMet = Object.values(this.requirements).every(req => req);
+                const sufficientParticipants = this.participantCount >= 7;
+
+                if (allRequirementsMet && sufficientParticipants) {
+                    this.initiateFinalSequence();
+                } else if (allRequirementsMet) {
+                    // Update collective requirement to show waiting for participants
+                    document.getElementById('collective-status').textContent =
+                        `WAITING FOR PARTICIPANTS (${this.participantCount}/7)`;
+                }
+            }
+
+            initiateFinalSequence() {
+                // Complete collective requirement
+                this.completeRequirement('collective');
+
+                // Generate final key
+                this.generateFinalKey();
+
+                // Show final sequence
+                setTimeout(() => {
+                    document.getElementById('final-sequence').classList.add('active');
+
+                    // Trigger intense glitch effects
+                    if (window.glitchEffects) {
+                        window.glitchEffects.intensifyGlitches();
+                    }
+
+                    this.playSuccessSound();
+                }, 1000);
+
+                // Update progress tracker
+                if (window.progressTracker) {
+                    window.progressTracker.updateProgress('final', {
+                        final_sequence_initiated: true,
+                        all_requirements_met: true,
+                        participants: this.participantCount
+                    });
+                }
+            }
+
+            generateFinalKey() {
+                const keyElements = [
+                    'DEEP', 'WEB', 'MINING', 'COLLECTIVE',
+                    '2024', 'RED', 'ROOM', 'ACCESS',
+                    'FINAL', 'REVELATION'
+                ];
+
+                this.finalKey = keyElements.join('_') + '_' + Date.now().toString().slice(-6);
+
+                // Animate key generation
+                const keyElement = document.getElementById('final-key');
+                let dots = '';
+
+                const keyAnimation = setInterval(() => {
+                    dots += '.';
+                    if (dots.length > 3) dots = '';
+                    keyElement.textContent = `GENERATING FINAL KEY${dots}`;
+                }, 200);
+
+                setTimeout(() => {
+                    clearInterval(keyAnimation);
+                    keyElement.textContent = this.finalKey;
+                    keyElement.style.color = '#00ff00';
+                    keyElement.style.borderColor = '#00ff00';
+                }, 3000);
+            }
+
+            renderMembers() {
+                const grid = document.getElementById('members-grid');
+                grid.innerHTML = '';
+
+                this.members.forEach(member => {
+                    const slot = document.createElement('div');
+                    slot.className = `member-slot ${member.status}`;
+                    slot.innerHTML = `
+                        <div class="member-name">${member.name}</div>
+                        <div class="member-status">${member.status}</div>
+                    `;
+                    grid.appendChild(slot);
+                });
+            }
+
+            simulateParticipants() {
+                // Simulate other participants joining over time
+                setInterval(() => {
+                    if (this.participantCount < 7 && Math.random() < 0.3) {
+                        this.participantCount++;
+                        document.getElementById('participant-count').textContent = this.participantCount;
+
+                        // Update a member's status
+                        const offlineMembers = this.members.filter(m => m.status === 'offline');
+                        if (offlineMembers.length > 0) {
+                            const randomMember = offlineMembers[Math.floor(Math.random() * offlineMembers.length)];
+                            randomMember.status = 'active';
+                            this.renderMembers();
+                        }
+
+                        // Check if we have enough participants
+                        this.checkFinalAccess();
+                    }
+                }, 10000);
+            }
+
+            startCountdown() {
+                const countdownTimer = setInterval(() => {
+                    this.countdownTime--;
+
+                    const minutes = Math.floor(this.countdownTime / 60);
+                    const seconds = this.countdownTime % 60;
+                    const display = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+                    document.getElementById('countdown-timer').textContent = display;
+
+                    // Warning at 1 minute
+                    if (this.countdownTime === 60) {
+                        if (window.glitchEffects) {
+                            window.glitchEffects.showSystemAlert(
+                                'WARNING: Final sequence countdown at 1 minute!\n\nAll participants must be present for access.',
+                                'warning'
+                            );
+                        }
+                    }
+
+                    // Time expired
+                    if (this.countdownTime <= 0) {
+                        clearInterval(countdownTimer);
+                        this.handleTimeExpired();
+                    }
+                }, 1000);
+            }
+
+            handleTimeExpired() {
+                if (!document.getElementById('final-sequence').classList.contains('active')) {
+                    if (window.glitchEffects) {
+                        window.glitchEffects.showSystemAlert(
+                            'TIME EXPIRED\n\nFinal sequence window has closed.\nRedirecting to Deep Web Portal...',
+                            'error'
+                        );
+                    }
+
+                    setTimeout(() => {
+                        window.location.href = '../deep/irc-chat.html';
+                    }, 3000);
+                } else {
+                    document.getElementById('countdown-timer').textContent = 'COMPLETE';
+                    document.getElementById('countdown').style.color = '#00ff00';
+                }
+            }
+
+            updateProgressDisplay() {
+                // Update progress percentages based on localStorage
+                const progress = JSON.parse(localStorage.getItem('dwmc_progress') || '{}');
+
+                if (progress.surface?.completed) {
+                    document.getElementById('surface-percent').textContent = '100%';
+                    document.getElementById('surface-progress').classList.add('completed');
+                    this.completeRequirement('surface');
+                }
+
+                if (progress.breach?.completed) {
+                    document.getElementById('breach-percent').textContent = '100%';
+                    document.getElementById('breach-progress').classList.add('completed');
+                    this.completeRequirement('terminal');
+                }
+
+                if (progress.deep?.completed) {
+                    document.getElementById('deep-percent').textContent = '100%';
+                    document.getElementById('deep-progress').classList.add('completed');
+                    this.completeRequirement('deep');
+                }
+            }
+
+            playSuccessSound() {
+                const audio = document.getElementById('success-sound');
+                if (audio) {
+                    audio.currentTime = 0;
+                    audio.volume = 0.5;
+                    audio.play().catch(() => {});
+                }
+            }
+        }
+
+        // Global function for final access
+        function accessRevelation() {
+            if (window.progressTracker) {
+                window.progressTracker.completePhase('final', {
+                    final_access_granted: true,
+                    revelation_unlocked: true,
+                    completion_time: Date.now()
+                });
+            }
+
+            // Redirect to final revelation
+            window.location.href = 'revelation.html';
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            window.redRoomAccess = new RedRoomAccess();
+        });
+    </script>
+</body>
+</html>

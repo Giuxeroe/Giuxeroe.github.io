@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terminal Access - Deep Web Mining Collective</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="../../assets/css/deep-web.css">
+    <link rel="stylesheet" href="../../assets/css/glitch.css">
+    <link rel="stylesheet" href="../../assets/css/terminal.css">
+
+    <!-- Audio Elements -->
+    <audio id="typing-sound" preload="auto">
+        <source src="../../assets/sounds/typing.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="error-sound" preload="auto">
+        <source src="../../assets/sounds/error.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="success-sound" preload="auto">
+        <source src="../../assets/sounds/access-granted.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="alert-sound" preload="auto">
+        <source src="../../assets/sounds/alert.mp3" type="audio/mpeg">
+    </audio>
+
+    <style>
+        .breach-header {
+            text-align: center;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .breach-title {
+            color: #ff0000;
+            font-size: 2.8em;
+            margin-bottom: 10px;
+            text-shadow: 0 0 15px #ff0000;
+            animation: breach-pulse 2s infinite;
+        }
+
+        @keyframes breach-pulse {
+            0%, 100% {
+                text-shadow: 0 0 15px #ff0000;
+                color: #ff0000;
+            }
+            50% {
+                text-shadow: 0 0 25px #ff0000, 0 0 35px #ff0000;
+                color: #ff4444;
+            }
+        }
+
+        .security-alert {
+            background: linear-gradient(45deg, #2a0000, #1a0000);
+            border: 2px solid #ff0000;
+            color: #ff0000;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: center;
+            font-weight: bold;
+            text-transform: uppercase;
+            animation: alert-flash 1s infinite;
+        }
+
+        @keyframes alert-flash {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.7; }
+        }
+
+        .terminal-grid {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .main-terminal {
+            min-height: 500px;
+        }
+
+        .side-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .network-status {
+            background: #1a1a1a;
+            border: 2px solid #ffff00;
+            padding: 15px;
+        }
+
+        .network-status h3 {
+            color: #ffff00;
+            margin-top: 0;
+            text-align: center;
+        }
+
+        .node-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .node-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 0;
+            border-bottom: 1px solid #333333;
+        }
+
+        .node-name {
+            color: #ffffff;
+        }
+
+        .node-status {
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .status-online {
+            background: #00ff00;
+            color: #000000;
+        }
+
+        .status-warning {
+            background: #ffff00;
+            color: #000000;
+        }
+
+        .status-offline {
+            background: #ff0000;
+            color: #ffffff;
+        }
+
+        .coordinates-panel {
+            background: #1a1a1a;
+            border: 2px solid #00ffff;
+            padding: 15px;
+        }
+
+        .coordinates-panel h3 {
+            color: #00ffff;
+            margin-top: 0;
+            text-align: center;
+        }
+
+        .coordinate-entry {
+            background: #000000;
+            border: 1px solid #333333;
+            padding: 10px;
+            margin: 8px 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .coordinate-label {
+            color: #00ffff;
+            font-size: 0.8em;
+            text-transform: uppercase;
+        }
+
+        .coordinate-value {
+            color: #ffffff;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+
+        .security-timer {
+            background: #2a0000;
+            border: 2px solid #ff0000;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .timer-display {
+            color: #ff0000;
+            font-size: 2em;
+            font-weight: bold;
+            margin: 10px 0;
+            text-shadow: 0 0 10px #ff0000;
+        }
+
+        .timer-label {
+            color: #ffff00;
+            font-size: 0.9em;
+            text-transform: uppercase;
+        }
+
+        .hack-progress {
+            margin: 20px 0;
+        }
+
+        .hack-step {
+            background: #1a1a1a;
+            border: 1px solid #333333;
+            padding: 15px;
+            margin: 10px 0;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .hack-step.completed {
+            border-color: #00ff00;
+            background: rgba(0, 255, 0, 0.1);
+        }
+
+        .hack-step.active {
+            border-color: #ffff00;
+            background: rgba(255, 255, 0, 0.1);
+            animation: active-step 1.5s infinite;
+        }
+
+        @keyframes active-step {
+            0%, 100% { box-shadow: 0 0 5px rgba(255, 255, 0, 0.3); }
+            50% { box-shadow: 0 0 15px rgba(255, 255, 0, 0.6); }
+        }
+
+        .step-number {
+            position: absolute;
+            left: -10px;
+            top: 15px;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #333333;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .step-number.completed {
+            background: #00ff00;
+            color: #000000;
+        }
+
+        .step-number.active {
+            background: #ffff00;
+            color: #000000;
+            animation: step-pulse 1s infinite;
+        }
+
+        @keyframes step-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .breach-instructions {
+            background: rgba(0, 255, 255, 0.1);
+            border: 2px dashed #00ffff;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .breach-instructions h3 {
+            color: #00ffff;
+            margin-top: 0;
+        }
+
+        .command-hint {
+            background: #000000;
+            border: 1px solid #00ff00;
+            padding: 8px 12px;
+            margin: 5px 0;
+            font-family: 'Courier New', monospace;
+            color: #00ff00;
+            display: inline-block;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .command-hint:hover {
+            background: #00ff00;
+            color: #000000;
+        }
+
+        @media (max-width: 1024px) {
+            .terminal-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .side-panel {
+                order: -1;
+            }
+
+            .breach-title {
+                font-size: 2.2em;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .breach-title {
+                font-size: 1.8em;
+            }
+
+            .timer-display {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="breach-header">
+            <h1 class="breach-title glitch-text" data-text="SYSTEM BREACH DETECTED">
+                SYSTEM BREACH DETECTED
+            </h1>
+            <div class="security-alert">
+                ⚠ UNAUTHORIZED TERMINAL ACCESS - SECURITY PROTOCOLS ACTIVATED ⚠
+            </div>
+        </header>
+
+        <!-- Main Content Grid -->
+        <div class="terminal-grid">
+            <!-- Main Terminal -->
+            <div class="main-terminal">
+                <div class="terminal-container">
+                    <div class="terminal-header">
+                        <span class="terminal-title">DEEP WEB MINING COLLECTIVE - SECURE TERMINAL</span>
+                        <span class="terminal-status">BREACHED</span>
+                    </div>
+                    <div class="terminal-output" id="terminal-output">
+                        <!-- Terminal output will be populated by JavaScript -->
+                    </div>
+                    <div class="terminal-input-container">
+                        <span class="terminal-prompt">root@dwmc:~$ </span>
+                        <input type="text" class="terminal-input" id="terminal-input" autocomplete="off" spellcheck="false">
+                        <span class="terminal-cursor"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Side Panel -->
+            <div class="side-panel">
+                <!-- Network Status -->
+                <div class="network-status">
+                    <h3>NETWORK NODES</h3>
+                    <ul class="node-list">
+                        <li class="node-item">
+                            <span class="node-name">ALPHA</span>
+                            <span class="node-status status-online">ONLINE</span>
+                        </li>
+                        <li class="node-item">
+                            <span class="node-name">BETA</span>
+                            <span class="node-status status-warning">UNSTABLE</span>
+                        </li>
+                        <li class="node-item">
+                            <span class="node-name">GAMMA</span>
+                            <span class="node-status status-online">ONLINE</span>
+                        </li>
+                        <li class="node-item">
+                            <span class="node-name">DEEP-01</span>
+                            <span class="node-status status-offline">OFFLINE</span>
+                        </li>
+                        <li class="node-item">
+                            <span class="node-name">IRC-SRV</span>
+                            <span class="node-status status-warning">MONITORED</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Coordinates Panel -->
+                <div class="coordinates-panel">
+                    <h3>NODE COORDINATES</h3>
+                    <div class="coordinate-entry">
+                        <div class="coordinate-label">Alpha Node</div>
+                        <div class="coordinate-value">156, 78, -334</div>
+                    </div>
+                    <div class="coordinate-entry">
+                        <div class="coordinate-label">Beta Node</div>
+                        <div class="coordinate-value">-89, 82, 445</div>
+                    </div>
+                    <div class="coordinate-entry">
+                        <div class="coordinate-label">Gamma Node</div>
+                        <div class="coordinate-value">334, 91, -178</div>
+                    </div>
+                    <div class="coordinate-entry">
+                        <div class="coordinate-label">IRC Server</div>
+                        <div class="coordinate-value">-445, 23, 267</div>
+                    </div>
+                </div>
+
+                <!-- Security Timer -->
+                <div class="security-timer">
+                    <div class="timer-label">TRACE COUNTDOWN</div>
+                    <div class="timer-display" id="security-timer">09:47</div>
+                    <div style="color: #ffff00; font-size: 0.8em;">
+                        Complete breach before trace completes
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Breach Instructions -->
+        <div class="breach-instructions">
+            <h3>BREACH OBJECTIVES</h3>
+            <p>You have gained access to a secure terminal within the Deep Web Mining Collective's network. Complete the following objectives to establish deep web access:</p>
+
+            <div class="hack-progress">
+                <div class="hack-step" id="step-1">
+                    <div class="step-number">1</div>
+                    <strong>Network Reconnaissance:</strong> Use <span class="command-hint" onclick="insertCommand('netstat')">netstat</span> and <span class="command-hint" onclick="insertCommand('ps')">ps</span> to explore the system
+                </div>
+
+                <div class="hack-step" id="step-2">
+                    <div class="step-number">2</div>
+                    <strong>Password Cracking:</strong> Use <span class="command-hint" onclick="insertCommand('crack passwords.enc')">crack passwords.enc</span> to decrypt the password database
+                </div>
+
+                <div class="hack-step" id="step-3">
+                    <div class="step-number">3</div>
+                    <strong>Network Mapping:</strong> Use <span class="command-hint" onclick="insertCommand('scan')">scan</span> commands to map the network topology
+                </div>
+
+                <div class="hack-step" id="step-4">
+                    <div class="step-number">4</div>
+                    <strong>Deep Access:</strong> Use <span class="command-hint" onclick="insertCommand('connect irc.deepweb.onion')">connect</span> to establish IRC server access
+                </div>
+            </div>
+
+            <p><strong>Available Commands:</strong> help, ls, cat, netstat, ps, crack, scan, connect, trace, decrypt</p>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="../../assets/js/progress-tracker.js"></script>
+    <script src="../../assets/js/glitch-effects.js"></script>
+    <script src="../../assets/js/timer-system.js"></script>
+    <script src="../../assets/js/terminal-sim.js"></script>
+
+    <script>
+        // Breach Phase Logic
+        class BreachPhase {
+            constructor() {
+                this.completedSteps = JSON.parse(localStorage.getItem('breach_steps') || '[]');
+                this.objectives = [
+                    'network_recon',
+                    'password_crack',
+                    'network_map',
+                    'deep_access'
+                ];
+
+                this.initializePage();
+                this.startSecurityTimer();
+                this.updateStepProgress();
+                this.simulateNetworkActivity();
+            }
+
+            initializePage() {
+                // Mark breach access in progress tracker
+                if (window.progressTracker) {
+                    window.progressTracker.updateProgress('breach', {
+                        access_time: Date.now(),
+                        terminal_accessed: true
+                    });
+                }
+
+                // Listen for terminal command completions
+                window.addEventListener('commandCompleted', (e) => {
+                    this.handleCommandCompletion(e.detail);
+                });
+
+                // Listen for progress updates
+                window.addEventListener('progressUpdate', (e) => {
+                    this.checkObjectiveCompletion();
+                });
+
+                this.updateStepProgress();
+            }
+
+            handleCommandCompletion(commandData) {
+                const { command, args, success } = commandData;
+
+                if (!success) return;
+
+                // Check which objectives are completed based on commands
+                switch (command) {
+                    case 'netstat':
+                    case 'ps':
+                        this.completeObjective('network_recon', 'Network reconnaissance completed');
+                        break;
+
+                    case 'crack':
+                        if (args[0] === 'passwords.enc') {
+                            this.completeObjective('password_crack', 'Password database cracked');
+                        }
+                        break;
+
+                    case 'scan':
+                        this.completeObjective('network_map', 'Network topology mapped');
+                        break;
+
+                    case 'connect':
+                        if (args[0] && args[0].includes('irc')) {
+                            this.completeObjective('deep_access', 'Deep web access established');
+                        }
+                        break;
+                }
+            }
+
+            completeObjective(objectiveId, message) {
+                if (this.completedSteps.includes(objectiveId)) return;
+
+                this.completedSteps.push(objectiveId);
+                localStorage.setItem('breach_steps', JSON.stringify(this.completedSteps));
+
+                // Update progress tracker
+                if (window.progressTracker) {
+                    window.progressTracker.updateProgress('breach', {
+                        [objectiveId]: true,
+                        completed_steps: this.completedSteps.length
+                    });
+                }
+
+                // Show completion notification
+                if (window.progressTracker) {
+                    window.progressTracker.showNotification(message, 'success');
+                }
+
+                this.updateStepProgress();
+
+                // Check if all objectives completed
+                if (this.completedSteps.length >= this.objectives.length) {
+                    this.completePhase();
+                }
+
+                this.playSuccessSound();
+            }
+
+            updateStepProgress() {
+                this.objectives.forEach((objective, index) => {
+                    const stepElement = document.getElementById(`step-${index + 1}`);
+                    const numberElement = stepElement.querySelector('.step-number');
+
+                    if (this.completedSteps.includes(objective)) {
+                        stepElement.classList.add('completed');
+                        stepElement.classList.remove('active');
+                        numberElement.classList.add('completed');
+                        numberElement.classList.remove('active');
+                    } else if (index === 0 || this.completedSteps.includes(this.objectives[index - 1])) {
+                        stepElement.classList.add('active');
+                        numberElement.classList.add('active');
+                    }
+                });
+            }
+
+            completePhase() {
+                // Update progress tracker
+                if (window.progressTracker) {
+                    window.progressTracker.completePhase('breach', {
+                        objectives_completed: this.completedSteps.length,
+                        completion_time: Date.now(),
+                        network_mapped: true,
+                        passwords_decrypted: true
+                    });
+                }
+
+                // Stop security timer
+                clearInterval(this.securityTimerInterval);
+
+                // Show completion message
+                if (window.glitchEffects) {
+                    window.glitchEffects.showSystemAlert(
+                        'PHASE 2 COMPLETE\n\nTerminal breach successful!\nDeep web access protocols established.\n\nYou may now access IRC channels and deep web resources.',
+                        'success'
+                    );
+                }
+
+                // Trigger special effects
+                this.triggerCompletionEffects();
+
+                // Update timer display
+                document.getElementById('security-timer').textContent = 'BREACH COMPLETE';
+                document.getElementById('security-timer').style.color = '#00ff00';
+            }
+
+            triggerCompletionEffects() {
+                // Intensive glitch effects
+                if (window.glitchEffects) {
+                    window.glitchEffects.intensifyGlitches();
+                }
+
+                // Update all network nodes to online
+                document.querySelectorAll('.node-status').forEach(status => {
+                    status.className = 'node-status status-online';
+                    status.textContent = 'ONLINE';
+                });
+
+                // Change security alert
+                const alert = document.querySelector('.security-alert');
+                if (alert) {
+                    alert.innerHTML = '✓ SYSTEM BREACH COMPLETE - DEEP WEB ACCESS GRANTED ✓';
+                    alert.style.borderColor = '#00ff00';
+                    alert.style.background = 'linear-gradient(45deg, #002a00, #001a00)';
+                    alert.style.color = '#00ff00';
+                }
+            }
+
+            startSecurityTimer() {
+                let timeLeft = 600; // 10 minutes
+
+                this.securityTimerInterval = setInterval(() => {
+                    if (this.completedSteps.length >= this.objectives.length) {
+                        return; // Phase completed
+                    }
+
+                    timeLeft--;
+
+                    const minutes = Math.floor(timeLeft / 60);
+                    const seconds = timeLeft % 60;
+                    const display = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+                    document.getElementById('security-timer').textContent = display;
+
+                    // Warning colors
+                    if (timeLeft < 120) { // Last 2 minutes
+                        document.getElementById('security-timer').style.color = '#ff0000';
+                        document.getElementById('security-timer').style.animation = 'timer-critical 0.5s infinite';
+                    } else if (timeLeft < 300) { // Last 5 minutes
+                        document.getElementById('security-timer').style.color = '#ffff00';
+                    }
+
+                    // Time expired
+                    if (timeLeft <= 0) {
+                        this.handleSecurityTimeout();
+                    }
+                }, 1000);
+
+                // Add critical timer animation
+                if (!document.querySelector('#timer-critical-styles')) {
+                    const style = document.createElement('style');
+                    style.id = 'timer-critical-styles';
+                    style.textContent = `
+                        @keyframes timer-critical {
+                            0%, 100% { opacity: 1; transform: scale(1); }
+                            50% { opacity: 0.7; transform: scale(1.05); }
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
+            }
+
+            handleSecurityTimeout() {
+                clearInterval(this.securityTimerInterval);
+
+                document.getElementById('security-timer').textContent = 'TRACED!';
+                document.getElementById('security-timer').style.color = '#ff0000';
+
+                if (window.glitchEffects) {
+                    window.glitchEffects.showSystemAlert(
+                        'SECURITY TRACE COMPLETE!\n\nYour location has been compromised.\nSystem access will be terminated in 60 seconds.\n\nDisconnect immediately or face consequences.',
+                        'error'
+                    );
+
+                    window.glitchEffects.intensifyGlitches();
+                }
+
+                // Give player 60 seconds to disconnect or complete
+                setTimeout(() => {
+                    if (this.completedSteps.length < this.objectives.length) {
+                        this.forceDisconnect();
+                    }
+                }, 60000);
+            }
+
+            forceDisconnect() {
+                if (window.glitchEffects) {
+                    window.glitchEffects.showSystemAlert(
+                        'CONNECTION TERMINATED\n\nSecurity protocols activated.\nAll access revoked.\n\nReturning to surface level...',
+                        'error'
+                    );
+                }
+
+                // Redirect back to surface after delay
+                setTimeout(() => {
+                    window.location.href = '../surface/entry-point.html';
+                }, 3000);
+            }
+
+            simulateNetworkActivity() {
+                // Simulate network node status changes
+                setInterval(() => {
+                    const nodes = document.querySelectorAll('.node-item');
+                    const randomNode = nodes[Math.floor(Math.random() * nodes.length)];
+                    const statusElement = randomNode.querySelector('.node-status');
+
+                    // Occasionally change status
+                    if (Math.random() < 0.1) {
+                        const statuses = ['ONLINE', 'UNSTABLE', 'MONITORING'];
+                        const classes = ['status-online', 'status-warning', 'status-warning'];
+                        const randomIndex = Math.floor(Math.random() * statuses.length);
+
+                        statusElement.textContent = statuses[randomIndex];
+                        statusElement.className = 'node-status ' + classes[randomIndex];
+                    }
+                }, 3000);
+            }
+
+            checkObjectiveCompletion() {
+                // This method can be called by external events to check progress
+                this.updateStepProgress();
+            }
+
+            playSuccessSound() {
+                const audio = document.getElementById('success-sound');
+                if (audio) {
+                    audio.currentTime = 0;
+                    audio.volume = 0.4;
+                    audio.play().catch(() => {});
+                }
+            }
+        }
+
+        // Global function for inserting commands
+        function insertCommand(command) {
+            const input = document.getElementById('terminal-input');
+            if (input) {
+                input.value = command;
+                input.focus();
+            }
+        }
+
+        // Override terminal simulator to add command completion events
+        class BreachTerminalSimulator extends TerminalSimulator {
+            processCommand(input) {
+                const result = super.processCommand(input);
+
+                // Fire command completion event
+                const [cmd, ...args] = input.toLowerCase().split(' ');
+                window.dispatchEvent(new CustomEvent('commandCompleted', {
+                    detail: {
+                        command: cmd,
+                        args: args,
+                        input: input,
+                        success: !result || !result.includes('not found')
+                    }
+                }));
+
+                return result;
+            }
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            window.breachPhase = new BreachPhase();
+
+            // Initialize custom terminal
+            const terminal = document.querySelector('.terminal-container');
+            if (terminal) {
+                window.breachTerminal = new BreachTerminalSimulator(terminal);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deep Web Mining Collective - QR Generator</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="assets/css/deep-web.css">
+    <link rel="stylesheet" href="assets/css/terminal.css">
+
+    <style>
+        body {
+            background: #0a0a0a;
+            color: #ffffff;
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .generator-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .generator-title {
+            color: #00ff00;
+            font-size: 2.5em;
+            text-shadow: 0 0 10px #00ff00;
+            margin-bottom: 10px;
+        }
+
+        .generator-subtitle {
+            color: #ffff00;
+            font-size: 1.2em;
+        }
+
+        .instructions {
+            background: #1a1a1a;
+            border: 2px solid #00ff00;
+            padding: 20px;
+            margin-bottom: 30px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .instructions h3 {
+            color: #00ff00;
+            margin-top: 0;
+        }
+
+        .instructions ol {
+            color: #cccccc;
+            line-height: 1.6;
+        }
+
+        .instructions li {
+            margin-bottom: 10px;
+        }
+
+        .coordinate-guide {
+            background: #2a2a2a;
+            border: 1px solid #ffff00;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        .coordinate-guide h4 {
+            color: #ffff00;
+            margin-top: 0;
+        }
+
+        .coordinate-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .coordinate-item {
+            background: #1a1a1a;
+            padding: 10px;
+            border-left: 3px solid #00ff00;
+        }
+
+        .phase-info {
+            background: #2a1a1a;
+            border: 1px solid #ff0000;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        .phase-info h4 {
+            color: #ff0000;
+            margin-top: 0;
+        }
+
+        .warning-box {
+            background: rgba(255, 0, 0, 0.1);
+            border: 2px solid #ff0000;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .warning-box h4 {
+            color: #ff0000;
+            margin-top: 0;
+            text-transform: uppercase;
+        }
+
+        .download-section {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .bulk-download-btn {
+            background: #ff0000;
+            color: #ffffff;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            cursor: pointer;
+            margin: 10px;
+            text-transform: uppercase;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .bulk-download-btn:hover {
+            background: #ffffff;
+            color: #ff0000;
+            box-shadow: 0 0 15px #ff0000;
+        }
+
+        @media (max-width: 768px) {
+            .generator-title {
+                font-size: 1.8em;
+            }
+
+            .instructions {
+                margin: 10px;
+                padding: 15px;
+            }
+
+            .coordinate-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="generator-header">
+        <h1 class="generator-title">DEEP WEB MINING COLLECTIVE</h1>
+        <div class="generator-subtitle">QR Code Generator - Minecraft Integration Tool</div>
+    </div>
+
+    <div class="instructions">
+        <h3>🎯 How to Use This Generator</h3>
+        <ol>
+            <li><strong>Select Phase:</strong> Choose which ARG phase you want to generate QR codes for</li>
+            <li><strong>Generate QR Codes:</strong> Click "Generate Phase QR Codes" to create all QR codes for that phase</li>
+            <li><strong>Download Images:</strong> Click "Download Minecraft Images" to get PNG files optimized for Minecraft</li>
+            <li><strong>Place in Minecraft:</strong> Use the coordinates provided to place images at correct locations</li>
+            <li><strong>Test QR Codes:</strong> Scan with any QR reader to verify they link to correct pages</li>
+        </ol>
+    </div>
+
+    <div class="warning-box">
+        <h4>⚠ Important Notice ⚠</h4>
+        <p>These QR codes are designed for the Deep Web Mining Collective ARG experience. Each code contains encrypted data linking to specific phases of the game. Place them carefully in Minecraft according to the coordinate guide below.</p>
+    </div>
+
+    <div class="coordinate-guide">
+        <h4>📍 Minecraft Placement Coordinates</h4>
+        <p>Use these exact coordinates to place the QR code images in your Minecraft world:</p>
+
+        <div class="coordinate-list">
+            <div class="coordinate-item">
+                <strong>Spawn Welcome:</strong><br>
+                0, 64, 0<br>
+                <em>First QR code at spawn</em>
+            </div>
+            <div class="coordinate-item">
+                <strong>Bunker Entrance:</strong><br>
+                -247, 45, 892<br>
+                <em>Hidden underground facility</em>
+            </div>
+            <div class="coordinate-item">
+                <strong>Network Node Alpha:</strong><br>
+                156, 78, -334<br>
+                <em>Primary data center</em>
+            </div>
+            <div class="coordinate-item">
+                <strong>Network Node Beta:</strong><br>
+                -89, 82, 445<br>
+                <em>Secondary server room</em>
+            </div>
+            <div class="coordinate-item">
+                <strong>Network Node Gamma:</strong><br>
+                334, 91, -178<br>
+                <em>Backup communication hub</em>
+            </div>
+            <div class="coordinate-item">
+                <strong>Red Room Entrance:</strong><br>
+                0, 100, 0<br>
+                <em>Final phase access point</em>
+            </div>
+        </div>
+    </div>
+
+    <div class="phase-info">
+        <h4>🔴 Phase Information</h4>
+        <p><strong>Phase 1:</strong> Surface Discovery - Introduction and basic access</p>
+        <p><strong>Phase 2:</strong> First Breach - Terminal access and network mapping</p>
+        <p><strong>Phase 3:</strong> Deep Web Access - IRC chat and missing persons database</p>
+        <p><strong>Phase 4:</strong> Red Room Finale - Final puzzle and revelation</p>
+    </div>
+
+    <div class="download-section">
+        <h3 style="color: #00ff00;">Bulk Download Options</h3>
+        <button class="bulk-download-btn" onclick="downloadAllPhases()">
+            Download All Phases
+        </button>
+        <button class="bulk-download-btn" onclick="generateCoordinateGuide()">
+            Generate Coordinate Guide
+        </button>
+    </div>
+
+    <!-- QR Generator Interface will be inserted here -->
+    <div id="qr-generator-container"></div>
+
+    <!-- QR Generation Status -->
+    <div class="terminal-container" style="margin-top: 30px;">
+        <div class="terminal-header">
+            <span class="terminal-title">GENERATION LOG</span>
+            <span class="terminal-status">ACTIVE</span>
+        </div>
+        <div class="terminal-output" id="generation-log">
+            <div class="terminal-line terminal-success">QR Generator initialized...</div>
+            <div class="terminal-line terminal-response">Waiting for phase selection...</div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script src="assets/js/qr-generator.js"></script>
+
+    <script>
+        // Initialize QR generator
+        let qrGenerator;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            logMessage('Initializing QR Generator...', 'success');
+
+            // Initialize generator
+            qrGenerator = new QRGenerator();
+
+            // Wait for QR library to load
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            logMessage('QR library loaded successfully', 'success');
+
+            // Initialize interface
+            qrGenerator.initializeInterface();
+
+            logMessage('Generator interface ready', 'success');
+            logMessage('Select a phase and click "Generate Phase QR Codes" to begin', 'response');
+        });
+
+        function logMessage(message, type = 'response') {
+            const log = document.getElementById('generation-log');
+            const line = document.createElement('div');
+            line.className = `terminal-line terminal-${type}`;
+            line.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            log.appendChild(line);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        async function downloadAllPhases() {
+            if (!qrGenerator) {
+                logMessage('Generator not initialized', 'error');
+                return;
+            }
+
+            logMessage('Starting bulk download of all phases...', 'warning');
+
+            for (let phase = 1; phase <= 4; phase++) {
+                logMessage(`Generating Phase ${phase} images...`, 'response');
+
+                try {
+                    await qrGenerator.downloadAllImages(phase);
+                    logMessage(`Phase ${phase} images downloaded successfully`, 'success');
+
+                    // Delay between phases
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                } catch (error) {
+                    logMessage(`Error downloading Phase ${phase}: ${error.message}`, 'error');
+                }
+            }
+
+            logMessage('Bulk download complete!', 'success');
+        }
+
+        function generateCoordinateGuide() {
+            const guide = `
+DEEP WEB MINING COLLECTIVE - MINECRAFT COORDINATE GUIDE
+=====================================================
+
+PHASE 1 - SURFACE DISCOVERY:
+- spawn_welcome.png: 0, 64, 0 (Spawn point)
+- ascii_terminal.png: 50, 70, -30 (First terminal)
+- corrupted_map.png: 120, 65, 80 (Map fragment)
+
+PHASE 2 - FIRST BREACH:
+- bunker_entrance.png: -247, 45, 892 (Main bunker)
+- network_node_1.png: 156, 78, -334 (Alpha node)
+- network_node_2.png: -89, 82, 445 (Beta node)
+- network_node_3.png: 334, 91, -178 (Gamma node)
+- terminal_access.png: -445, 23, 267 (IRC server room)
+
+PHASE 3 - DEEP WEB ACCESS:
+- missing_person_1.png: 678, 67, -123 (Subject 001)
+- missing_person_2.png: -234, 89, 567 (Subject 002)
+- missing_person_3.png: 789, 45, -890 (Subject 003)
+- irc_logs.png: 123, 78, 456 (IRC communications)
+- streaming_coords.png: 0, 100, 0 (Live stream access)
+
+PHASE 4 - RED ROOM FINALE:
+- key_fragment_1.png: 111, 111, 111 (Alpha key)
+- key_fragment_2.png: 222, 222, 222 (Beta key)
+- key_fragment_3.png: 333, 333, 333 (Gamma key)
+- revelation.png: 0, 100, 0 (Final revelation)
+
+NOTES:
+- Place images in item frames or as map art
+- Ensure QR codes are clearly visible and scannable
+- Test each QR code after placement
+- Coordinates are in X, Y, Z format
+`;
+
+            const blob = new Blob([guide], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'minecraft-coordinate-guide.txt';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            logMessage('Coordinate guide downloaded', 'success');
+        }
+
+        // Override QR generator methods to add logging
+        if (window.QRGenerator) {
+            const originalDisplayPhaseQRCodes = QRGenerator.prototype.displayPhaseQRCodes;
+            QRGenerator.prototype.displayPhaseQRCodes = async function(phase) {
+                logMessage(`Generating QR codes for Phase ${phase}...`, 'warning');
+
+                try {
+                    await originalDisplayPhaseQRCodes.call(this, phase);
+                    logMessage(`Phase ${phase} QR codes generated successfully`, 'success');
+                } catch (error) {
+                    logMessage(`Error generating Phase ${phase}: ${error.message}`, 'error');
+                }
+            };
+
+            const originalDownloadAllImages = QRGenerator.prototype.downloadAllImages;
+            QRGenerator.prototype.downloadAllImages = async function(phase) {
+                logMessage(`Preparing Minecraft images for Phase ${phase}...`, 'warning');
+
+                try {
+                    const result = await originalDownloadAllImages.call(this, phase);
+                    logMessage(`Phase ${phase} Minecraft images downloaded`, 'success');
+                    return result;
+                } catch (error) {
+                    logMessage(`Error downloading images: ${error.message}`, 'error');
+                    throw error;
+                }
+            };
+        }
+    </script>
+</body>
+</html>
