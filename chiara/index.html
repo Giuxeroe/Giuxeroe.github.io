@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galleria Compleanno 🎂</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <!-- Hero Section -->
+    <div class="hero">
+        <div class="container">
+            <h1>🎉 Buon Compleanno! 🎉</h1>
+            <p>Una collezione speciale di ricordi condivisi dai tuoi amici</p>
+            <a href="upload.html" class="btn">Carica le tue foto</a>
+        </div>
+    </div>
+
+    <!-- Users Section -->
+    <div class="container">
+        <div class="users-section">
+            <h2>Le nostre foto insieme</h2>
+            <div id="usersGrid">
+                <!-- Le card degli utenti verranno generate qui dinamicamente -->
+            </div>
+            <div style="text-align: center;">
+                <button onclick="startFullSlideshow()" class="btn btn-primary">🎬 Avvia Slideshow Completo</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gallery Modal -->
+    <div id="galleryModal" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeGallery()">×</button>
+            <h2 id="galleryTitle"></h2>
+            <p id="galleryMessage" style="display: none;"></p>
+            <div id="galleryPhotos"></div>
+        </div>
+    </div>
+
+    <!-- Slideshow Modal -->
+    <div id="slideshowModal" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeSlideshow()">×</button>
+            <div class="slideshow-container">
+                <img id="slideshowImage" src="" alt="Slideshow">
+                <div class="slideshow-info">
+                    <h3 id="slideshowUserName"></h3>
+                    <p id="slideshowMessage" style="display: none;"></p>
+                    <div id="slideCounter"></div>
+                </div>
+                <progress id="slideshowProgress" value="0" max="100"></progress>
+            </div>
+            <div class="slideshow-controls">
+                <button id="prevBtn">⏮️ Precedente</button>
+                <button id="playPauseBtn">⏸️ Pausa</button>
+                <button id="nextBtn">⏭️ Successiva</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Background Music -->
+    <audio id="backgroundMusic" loop>
+        <source src="assets/music/background.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+
+    <!-- App Scripts -->
+    <script src="assets/js/firebase-config.js"></script>
+    <script src="assets/js/main.js"></script>
+</body>
+</html>
+
