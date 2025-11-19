@@ -41,7 +41,13 @@ function renderUserCards() {
 
     users.forEach(userName => {
         const userData = allUsersData[userName];
-        const photoCount = userData.photos ? userData.photos.length : 0;
+
+        // Converti photos in array se è un oggetto
+        let photos = userData.photos || [];
+        if (!Array.isArray(photos)) {
+            photos = Object.values(photos);
+        }
+        const photoCount = photos.length;
 
         const card = document.createElement('div');
         card.className = 'user-card';
@@ -70,18 +76,30 @@ function showUserGallery(userName, userData) {
     galleryTitle.textContent = `Foto con ${userName}`;
     galleryPhotos.innerHTML = '';
 
+    // Converti messages in array se è un oggetto
+    let messages = userData.messages || [];
+    if (!Array.isArray(messages)) {
+        messages = Object.values(messages);
+    }
+
     // Mostra messaggi se presenti
-    if (userData.messages && userData.messages.length > 0) {
-        const lastMessage = userData.messages[userData.messages.length - 1];
+    if (messages.length > 0) {
+        const lastMessage = messages[messages.length - 1];
         galleryMessage.textContent = `"${lastMessage.text}"`;
         galleryMessage.style.display = 'block';
     } else {
         galleryMessage.style.display = 'none';
     }
 
+    // Converti photos in array se è un oggetto
+    let photos = userData.photos || [];
+    if (!Array.isArray(photos)) {
+        photos = Object.values(photos);
+    }
+
     // Mostra foto
-    if (userData.photos && userData.photos.length > 0) {
-        userData.photos.forEach((photo, index) => {
+    if (photos.length > 0) {
+        photos.forEach((photo, index) => {
             const photoItem = document.createElement('div');
             photoItem.className = 'gallery-photo-item';
             photoItem.innerHTML = `
@@ -117,11 +135,23 @@ function startFullSlideshow() {
 
     Object.keys(allUsersData).forEach(userName => {
         const userData = allUsersData[userName];
-        if (userData.photos && userData.photos.length > 0) {
-            const messages = userData.messages || [];
+
+        // Converti photos in array se è un oggetto
+        let photos = userData.photos || [];
+        if (!Array.isArray(photos)) {
+            photos = Object.values(photos);
+        }
+
+        if (photos.length > 0) {
+            // Converti messages in array se è un oggetto
+            let messages = userData.messages || [];
+            if (!Array.isArray(messages)) {
+                messages = Object.values(messages);
+            }
+
             const lastMessage = messages.length > 0 ? messages[messages.length - 1].text : '';
 
-            userData.photos.forEach(photo => {
+            photos.forEach(photo => {
                 slideshowData.push({
                     url: photo.url,
                     userName: userName,
