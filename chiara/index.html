@@ -43,6 +43,14 @@
     <div id="slideshowModal" class="modal">
         <div class="modal-content">
             <button class="close-btn" onclick="closeSlideshow()">×</button>
+            <div id="slideshowLoading" style="display: none;">
+                <div class="loading-spinner"></div>
+                <p>Caricamento foto e video...</p>
+                <div class="loading-progress">
+                    <div id="loadingProgressBar"></div>
+                    <span id="loadingProgressText">0%</span>
+                </div>
+            </div>
             <div class="slideshow-container">
                 <img id="slideshowImage" src="" alt="Slideshow">
                 <div class="slideshow-info">

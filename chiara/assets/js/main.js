@@ -187,6 +187,54 @@ function setupBackgroundMusic() {
     backgroundMusic.volume = 0.5; // 50% volume
 }
 
+// Precarica tutte le immagini prima di avviare lo slideshow
+function preloadImages(slideshowData) {
+    return new Promise((resolve, reject) => {
+        const imagesToLoad = slideshowData.filter(item => !item.isVideo);
+
+        if (imagesToLoad.length === 0) {
+            resolve();
+            return;
+        }
+
+        let loadedCount = 0;
+        const totalImages = imagesToLoad.length;
+        const loadingProgressBar = document.getElementById('loadingProgressBar');
+        const loadingProgressText = document.getElementById('loadingProgressText');
+
+        imagesToLoad.forEach((item) => {
+            const img = new Image();
+
+            img.onload = () => {
+                loadedCount++;
+                const progress = Math.round((loadedCount / totalImages) * 100);
+
+                if (loadingProgressBar) {
+                    loadingProgressBar.style.width = progress + '%';
+                }
+                if (loadingProgressText) {
+                    loadingProgressText.textContent = progress + '%';
+                }
+
+                if (loadedCount === totalImages) {
+                    resolve();
+                }
+            };
+
+            img.onerror = () => {
+                loadedCount++;
+                console.warn('Errore caricamento immagine:', item.url);
+
+                if (loadedCount === totalImages) {
+                    resolve();
+                }
+            };
+
+            img.src = item.url;
+        });
+    });
+}
+
 // Avvia slideshow completo
 function startFullSlideshow() {
     // Prepara array di tutte le foto e video raggruppate per persona
@@ -218,24 +266,60 @@ function startFullSlideshow() {
     const slideshowModal = document.getElementById('slideshowModal');
     slideshowModal.style.display = 'flex';
 
-    // Avvia slideshow
-    currentSlideshow = {
-        photos: slideshowData,
-        currentIndex: 0,
-        isPlaying: true,
-        intervalId: null,
-        videoTimeoutId: null
-    };
+    // Mostra loading overlay
+    const slideshowLoading = document.getElementById('slideshowLoading');
+    const slideshowContainer = document.querySelector('.slideshow-container');
+    const slideshowControls = document.querySelector('.slideshow-controls');
+    const personControls = document.querySelector('.person-controls');
 
-    displaySlide(currentSlideshow.currentIndex);
-    startSlideshowAutoPlay();
-
-    // Avvia musica se disponibile
-    if (backgroundMusic) {
-        backgroundMusic.play().catch(e => {
-            console.log('Autoplay bloccato dal browser:', e);
-        });
+    if (slideshowLoading) {
+        slideshowLoading.style.display = 'flex';
     }
+    if (slideshowContainer) {
+        slideshowContainer.style.display = 'none';
+    }
+    if (slideshowControls) {
+        slideshowControls.style.display = 'none';
+    }
+    if (personControls) {
+        personControls.style.display = 'none';
+    }
+
+    // Precarica tutte le immagini
+    preloadImages(slideshowData).then(() => {
+        // Nascondi loading, mostra slideshow
+        if (slideshowLoading) {
+            slideshowLoading.style.display = 'none';
+        }
+        if (slideshowContainer) {
+            slideshowContainer.style.display = 'block';
+        }
+        if (slideshowControls) {
+            slideshowControls.style.display = 'flex';
+        }
+        if (personControls) {
+            personControls.style.display = 'flex';
+        }
+
+        // Avvia slideshow
+        currentSlideshow = {
+            photos: slideshowData,
+            currentIndex: 0,
+            isPlaying: true,
+            intervalId: null,
+            videoTimeoutId: null
+        };
+
+        displaySlide(currentSlideshow.currentIndex);
+        startSlideshowAutoPlay();
+
+        // Avvia musica se disponibile
+        if (backgroundMusic) {
+            backgroundMusic.play().catch(e => {
+                console.log('Autoplay bloccato dal browser:', e);
+            });
+        }
+    });
 }
 
 // Trova l'indice della prima slide della persona precedente/successiva
