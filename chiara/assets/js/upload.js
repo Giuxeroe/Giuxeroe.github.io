@@ -1,4 +1,4 @@
-// Upload Foto - Gestione caricamento foto su Firebase Storage
+// Upload Foto e Video - Gestione caricamento su Firebase Storage
 
 document.addEventListener('DOMContentLoaded', function() {
     const uploadForm = document.getElementById('uploadForm');
@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const statusMessage = document.getElementById('statusMessage');
     const previewContainer = document.getElementById('previewContainer');
 
-    // Preview foto selezionate
+    // Preview file selezionati (foto e video)
     photoInput.addEventListener('change', function(e) {
         previewContainer.innerHTML = '';
         const files = Array.from(e.target.files);
@@ -28,6 +28,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     previewContainer.appendChild(preview);
                 };
                 reader.readAsDataURL(file);
+            } else if (file.type.startsWith('video/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.createElement('div');
+                    preview.className = 'photo-preview';
+                    preview.innerHTML = `
+                        <video src="${e.target.result}" controls style="width: 100%; height: 150px; object-fit: cover;"></video>
+                        <span>${file.name}</span>
+                    `;
+                    previewContainer.appendChild(preview);
+                };
+                reader.readAsDataURL(file);
             }
         });
     });
@@ -38,15 +50,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const friendName = nameInput.value.trim();
         const message = messageInput.value.trim();
-        const photos = Array.from(photoInput.files);
+        const files = Array.from(photoInput.files);
 
         if (!friendName) {
             showStatus('Inserisci il tuo nome!', 'error');
             return;
         }
 
-        if (photos.length === 0) {
-            showStatus('Seleziona almeno una foto!', 'error');
+        if (files.length === 0) {
+            showStatus('Seleziona almeno un file!', 'error');
+            return;
+        }
+
+        // Valida dimensione file
+        const maxSize = 50 * 1024 * 1024; // 50MB
+        const invalidFiles = files.filter(file => file.size > maxSize);
+        if (invalidFiles.length > 0) {
+            showStatus(`Alcuni file superano 50MB: ${invalidFiles.map(f => f.name).join(', ')}`, 'error');
             return;
         }
 
@@ -60,13 +80,13 @@ document.addEventListener('DOMContentLoaded', function() {
             const timestamp = Date.now();
             const uploadPromises = [];
 
-            // Upload ogni foto
-            for (let i = 0; i < photos.length; i++) {
-                const photo = photos[i];
-                const photoId = `${timestamp}_${i}_${photo.name}`;
-                const storageRef = storage.ref(`photos/${friendName}/${photoId}`);
+            // Upload ogni file (foto o video)
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const fileId = `${timestamp}_${i}_${file.name}`;
+                const storageRef = storage.ref(`photos/${friendName}/${fileId}`);
 
-                const uploadTask = storageRef.put(photo);
+                const uploadTask = storageRef.put(file);
 
                 uploadPromises.push(
                     new Promise((resolve, reject) => {
@@ -74,7 +94,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             'state_changed',
                             (snapshot) => {
                                 // Aggiorna progress bar
-                                const progress = ((i + snapshot.bytesTransferred / snapshot.totalBytes) / photos.length) * 100;
+                                const progress = ((i + snapshot.bytesTransferred / snapshot.totalBytes) / files.length) * 100;
                                 progressBar.value = progress;
                             },
                             (error) => {
@@ -100,7 +120,17 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             // Successo!
-            showStatus(`Perfetto! ${photos.length} foto caricate con successo! 🎉`, 'success');
+            const photoCount = files.filter(f => f.type.startsWith('image/')).length;
+            const videoCount = files.filter(f => f.type.startsWith('video/')).length;
+            let successMsg = `Perfetto! `;
+            if (photoCount > 0 && videoCount > 0) {
+                successMsg += `${photoCount} ${photoCount === 1 ? 'foto' : 'foto'} e ${videoCount} ${videoCount === 1 ? 'video' : 'video'} caricati con successo! 🎉`;
+            } else if (photoCount > 0) {
+                successMsg += `${photoCount} ${photoCount === 1 ? 'foto' : 'foto'} caricata con successo! 🎉`;
+            } else {
+                successMsg += `${videoCount} ${videoCount === 1 ? 'video' : 'video'} caricato con successo! 🎉`;
+            }
+            showStatus(successMsg, 'success');
             progressBar.value = 100;
 
             // Reset form dopo 3 secondi
@@ -109,7 +139,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 previewContainer.innerHTML = '';
                 progressBar.style.display = 'none';
                 uploadBtn.disabled = false;
-                uploadBtn.textContent = 'Carica Foto';
+                uploadBtn.textContent = 'Carica File';
                 showStatus('', '');
             }, 3000);
 
@@ -117,7 +147,7 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Errore:', error);
             showStatus('Errore durante il caricamento. Riprova!', 'error');
             uploadBtn.disabled = false;
-            uploadBtn.textContent = 'Carica Foto';
+            uploadBtn.textContent = 'Carica File';
             progressBar.style.display = 'none';
         }
     });

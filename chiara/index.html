@@ -47,7 +47,7 @@
                 <img id="slideshowImage" src="" alt="Slideshow">
                 <div class="slideshow-info">
                     <h3 id="slideshowUserName"></h3>
-                    <p id="slideshowMessage" style="display: none;"></p>
+                    <p id="slideshowMessage"></p>
                     <div id="slideCounter"></div>
                 </div>
                 <progress id="slideshowProgress" value="0" max="100"></progress>
@@ -56,6 +56,11 @@
                 <button id="prevBtn">⏮️ Precedente</button>
                 <button id="playPauseBtn">⏸️ Pausa</button>
                 <button id="nextBtn">⏭️ Successiva</button>
+                <div class="speed-control">
+                    <label for="speedSlider">Velocità:</label>
+                    <input type="range" id="speedSlider" min="1" max="10" value="5" step="1">
+                    <span id="speedValue">5s</span>
+                </div>
             </div>
         </div>
     </div>

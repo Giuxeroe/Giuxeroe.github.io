@@ -9,7 +9,7 @@
 <body>
     <div class="container">
         <div class="upload-container">
-            <h1>📸 Carica le tue foto</h1>
+            <h1>📸🎥 Carica foto e video</h1>
             <p style="text-align: center; color: #666; margin-bottom: 30px;">
                 Condividi i tuoi ricordi speciali insieme a lei!
             </p>
@@ -22,10 +22,10 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="photos">Seleziona le foto *</label>
-                    <input type="file" id="photos" name="photos" multiple accept="image/*" required>
+                    <label for="photos">Seleziona foto e video *</label>
+                    <input type="file" id="photos" name="photos" multiple accept="image/*,video/*" required>
                     <small style="color: #666; display: block; margin-top: 5px;">
-                        Puoi selezionare più foto alla volta
+                        Puoi selezionare più file alla volta (foto e video fino a 50MB ciascuno)
                     </small>
                     <div id="previewContainer"></div>
                 </div>
@@ -37,7 +37,7 @@
                 </div>
 
                 <button type="submit" id="uploadBtn" class="btn btn-primary" style="width: 100%;">
-                    Carica Foto
+                    Carica File
                 </button>
 
                 <progress id="progressBar" value="0" max="100"></progress>
