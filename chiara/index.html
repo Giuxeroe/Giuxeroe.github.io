@@ -20,7 +20,11 @@
     <div class="container">
         <div class="users-section">
             <h2>Le nostre foto insieme</h2>
-            <div id="usersGrid">
+            <div id="mainLoading" style="display: flex;">
+                <div class="loading-spinner"></div>
+                <p>Caricamento gallerie...</p>
+            </div>
+            <div id="usersGrid" class="users-grid" style="display: none;">
                 <!-- Le card degli utenti verranno generate qui dinamicamente -->
             </div>
             <div style="text-align: center;">

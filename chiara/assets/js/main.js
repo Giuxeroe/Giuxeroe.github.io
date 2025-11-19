@@ -26,6 +26,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Carica tutti i dati degli utenti da Storage
 async function loadUsersData() {
+    const mainLoading = document.getElementById('mainLoading');
+    const usersGrid = document.getElementById('usersGrid');
+
+    // Mostra loading
+    if (mainLoading) mainLoading.style.display = 'flex';
+    if (usersGrid) usersGrid.style.display = 'none';
+
     try {
         const photosRef = storage.ref('photos');
         const folders = await photosRef.listAll();
@@ -75,10 +82,15 @@ async function loadUsersData() {
         }
 
         renderUserCards();
+
+        // Nascondi loading
+        if (mainLoading) mainLoading.style.display = 'none';
+        if (usersGrid) usersGrid.style.display = 'grid';
     } catch (error) {
         console.error('Errore caricamento dati:', error);
-        const usersGrid = document.getElementById('usersGrid');
+        if (mainLoading) mainLoading.style.display = 'none';
         if (usersGrid) {
+            usersGrid.style.display = 'block';
             usersGrid.innerHTML = '<p class="no-users">Errore nel caricamento delle foto. Ricarica la pagina.</p>';
         }
     }
@@ -193,7 +205,7 @@ function preloadImages(slideshowData) {
         const imagesToLoad = slideshowData.filter(item => !item.isVideo);
 
         if (imagesToLoad.length === 0) {
-            resolve();
+            resolve({});
             return;
         }
 
@@ -201,12 +213,15 @@ function preloadImages(slideshowData) {
         const totalImages = imagesToLoad.length;
         const loadingProgressBar = document.getElementById('loadingProgressBar');
         const loadingProgressText = document.getElementById('loadingProgressText');
+        const imageCache = {}; // Store preloaded images
 
         imagesToLoad.forEach((item) => {
             const img = new Image();
 
             img.onload = () => {
                 loadedCount++;
+                imageCache[item.url] = img; // Cache the loaded image
+
                 const progress = Math.round((loadedCount / totalImages) * 100);
 
                 if (loadingProgressBar) {
@@ -217,7 +232,7 @@ function preloadImages(slideshowData) {
                 }
 
                 if (loadedCount === totalImages) {
-                    resolve();
+                    resolve(imageCache);
                 }
             };
 
@@ -226,7 +241,7 @@ function preloadImages(slideshowData) {
                 console.warn('Errore caricamento immagine:', item.url);
 
                 if (loadedCount === totalImages) {
-                    resolve();
+                    resolve(imageCache);
                 }
             };
 
@@ -286,7 +301,7 @@ function startFullSlideshow() {
     }
 
     // Precarica tutte le immagini
-    preloadImages(slideshowData).then(() => {
+    preloadImages(slideshowData).then((imageCache) => {
         // Nascondi loading, mostra slideshow
         if (slideshowLoading) {
             slideshowLoading.style.display = 'none';
@@ -301,13 +316,14 @@ function startFullSlideshow() {
             personControls.style.display = 'flex';
         }
 
-        // Avvia slideshow
+        // Avvia slideshow with cached images
         currentSlideshow = {
             photos: slideshowData,
             currentIndex: 0,
             isPlaying: true,
             intervalId: null,
-            videoTimeoutId: null
+            videoTimeoutId: null,
+            imageCache: imageCache  // Store the cached images
         };
 
         displaySlide(currentSlideshow.currentIndex);
@@ -417,10 +433,20 @@ function displaySlide(index) {
         // Ferma autoplay normale per i video
         stopSlideshowAutoPlay();
     } else {
-        // Crea elemento immagine
-        const imgElement = document.createElement('img');
-        imgElement.id = 'slideshowImage';
-        imgElement.src = slide.url;
+        // Use cached image if available, otherwise create new one
+        let imgElement;
+
+        if (currentSlideshow.imageCache && currentSlideshow.imageCache[slide.url]) {
+            // Clone the cached image
+            imgElement = currentSlideshow.imageCache[slide.url].cloneNode(true);
+            imgElement.id = 'slideshowImage';
+        } else {
+            // Fallback: create new image
+            imgElement = document.createElement('img');
+            imgElement.id = 'slideshowImage';
+            imgElement.src = slide.url;
+        }
+
         imgElement.alt = 'Slideshow';
         imgElement.style.maxWidth = '100%';
         imgElement.style.maxHeight = '70vh';
