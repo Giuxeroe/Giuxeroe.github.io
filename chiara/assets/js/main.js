@@ -306,6 +306,8 @@ function displaySlide(index) {
         slideshowContainer.insertBefore(imgElement, infoDiv);
 
         // Riprendi autoplay normale per le foto
+        // Ferma prima l'autoplay esistente per evitare intervalli multipli
+        stopSlideshowAutoPlay();
         if (currentSlideshow.isPlaying) {
             startSlideshowAutoPlay();
         }
@@ -348,6 +350,9 @@ function handleVideoEnded() {
 function startSlideshowAutoPlay() {
     if (!currentSlideshow || !currentSlideshow.isPlaying) return;
 
+    // SEMPRE fermare l'intervallo esistente prima di crearne uno nuovo
+    stopSlideshowAutoPlay();
+
     // Se la slide corrente è un video, non usare autoplay
     if (currentSlideshow.photos[currentSlideshow.currentIndex]?.isVideo) {
         return;
@@ -355,7 +360,7 @@ function startSlideshowAutoPlay() {
 
     // Cambia slide usando la velocità impostata (solo per foto)
     currentSlideshow.intervalId = setInterval(() => {
-        if (currentSlideshow.isPlaying) {
+        if (currentSlideshow && currentSlideshow.isPlaying) {
             // Controlla se la slide corrente è un video
             if (currentSlideshow.photos[currentSlideshow.currentIndex]?.isVideo) {
                 stopSlideshowAutoPlay();
