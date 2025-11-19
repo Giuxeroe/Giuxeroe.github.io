@@ -15,7 +15,6 @@ const firebaseConfig = {
 // Inizializza Firebase
 firebase.initializeApp(firebaseConfig);
 
-// Riferimenti ai servizi Firebase
-const database = firebase.database();
+// Riferimento al servizio Storage
 const storage = firebase.storage();
 

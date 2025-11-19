@@ -1,11 +1,11 @@
-// Main JavaScript - Gestione gallerie e slideshow
+// Main JavaScript - Gestione gallerie e slideshow (Storage-only)
 
 let allUsersData = {};
 let currentSlideshow = null;
 let backgroundMusic = null;
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Carica dati utenti dal database
+    // Carica dati utenti da Storage
     loadUsersData();
 
     // Setup musica di sottofondo
@@ -15,14 +15,63 @@ document.addEventListener('DOMContentLoaded', function() {
     setupSlideshowControls();
 });
 
-// Carica tutti i dati degli utenti dal database
-function loadUsersData() {
-    const usersRef = database.ref('users');
+// Carica tutti i dati degli utenti da Storage
+async function loadUsersData() {
+    try {
+        const photosRef = storage.ref('photos');
+        const folders = await photosRef.listAll();
 
-    usersRef.on('value', (snapshot) => {
-        allUsersData = snapshot.val() || {};
+        allUsersData = {};
+
+        // Per ogni cartella (utente)
+        for (const folder of folders.prefixes) {
+            const userName = folder.name;
+            const userFiles = await folder.listAll();
+
+            // Filtra solo le foto (escludi message.txt)
+            const photos = userFiles.items
+                .filter(item => item.name !== 'message.txt')
+                .map(item => ({
+                    url: null, // Sarà popolato dopo
+                    name: item.name,
+                    ref: item
+                }));
+
+            // Leggi message.txt se esiste
+            let message = '';
+            const messageRef = folder.child('message.txt');
+            try {
+                const messageUrl = await messageRef.getDownloadURL();
+                const response = await fetch(messageUrl);
+                message = await response.text();
+            } catch (e) {
+                // Nessun messaggio o errore lettura
+            }
+
+            // Ottieni URL per ogni foto
+            for (let i = 0; i < photos.length; i++) {
+                try {
+                    photos[i].url = await photos[i].ref.getDownloadURL();
+                } catch (e) {
+                    console.error('Errore ottenendo URL per', photos[i].name, e);
+                }
+            }
+
+            allUsersData[userName] = {
+                name: userName,
+                photos: photos.filter(p => p.url), // Solo foto con URL valido
+                message: message
+            };
+        }
+
         renderUserCards();
-    });
+    } catch (error) {
+        console.error('Errore caricamento dati:', error);
+        const usersGrid = document.getElementById('usersGrid');
+        if (usersGrid) {
+            usersGrid.innerHTML = '<p class="no-users">Errore nel caricamento delle foto. Ricarica la pagina.</p>';
+        }
+    }
 }
 
 // Renderizza le card degli utenti
@@ -41,13 +90,7 @@ function renderUserCards() {
 
     users.forEach(userName => {
         const userData = allUsersData[userName];
-
-        // Converti photos in array se è un oggetto
-        let photos = userData.photos || [];
-        if (!Array.isArray(photos)) {
-            photos = Object.values(photos);
-        }
-        const photoCount = photos.length;
+        const photoCount = userData.photos ? userData.photos.length : 0;
 
         const card = document.createElement('div');
         card.className = 'user-card';
@@ -76,30 +119,17 @@ function showUserGallery(userName, userData) {
     galleryTitle.textContent = `Foto con ${userName}`;
     galleryPhotos.innerHTML = '';
 
-    // Converti messages in array se è un oggetto
-    let messages = userData.messages || [];
-    if (!Array.isArray(messages)) {
-        messages = Object.values(messages);
-    }
-
-    // Mostra messaggi se presenti
-    if (messages.length > 0) {
-        const lastMessage = messages[messages.length - 1];
-        galleryMessage.textContent = `"${lastMessage.text}"`;
+    // Mostra messaggio se presente
+    if (userData.message) {
+        galleryMessage.textContent = `"${userData.message}"`;
         galleryMessage.style.display = 'block';
     } else {
         galleryMessage.style.display = 'none';
     }
 
-    // Converti photos in array se è un oggetto
-    let photos = userData.photos || [];
-    if (!Array.isArray(photos)) {
-        photos = Object.values(photos);
-    }
-
     // Mostra foto
-    if (photos.length > 0) {
-        photos.forEach((photo, index) => {
+    if (userData.photos && userData.photos.length > 0) {
+        userData.photos.forEach((photo, index) => {
             const photoItem = document.createElement('div');
             photoItem.className = 'gallery-photo-item';
             photoItem.innerHTML = `
@@ -136,26 +166,14 @@ function startFullSlideshow() {
     Object.keys(allUsersData).forEach(userName => {
         const userData = allUsersData[userName];
 
-        // Converti photos in array se è un oggetto
-        let photos = userData.photos || [];
-        if (!Array.isArray(photos)) {
-            photos = Object.values(photos);
-        }
+        if (userData.photos && userData.photos.length > 0) {
+            const message = userData.message || '';
 
-        if (photos.length > 0) {
-            // Converti messages in array se è un oggetto
-            let messages = userData.messages || [];
-            if (!Array.isArray(messages)) {
-                messages = Object.values(messages);
-            }
-
-            const lastMessage = messages.length > 0 ? messages[messages.length - 1].text : '';
-
-            photos.forEach(photo => {
+            userData.photos.forEach(photo => {
                 slideshowData.push({
                     url: photo.url,
                     userName: userName,
-                    message: lastMessage
+                    message: message
                 });
             });
         }
@@ -325,4 +343,3 @@ window.addEventListener('click', function(e) {
         closeSlideshow();
     }
 });
-

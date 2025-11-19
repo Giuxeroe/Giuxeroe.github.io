@@ -2,6 +2,8 @@
 
 Un sito web interattivo per celebrare il compleanno con foto caricate dagli amici, slideshow automatico e musica di sottofondo.
 
+**Nota**: Questo sito usa solo Firebase Storage (non serve Realtime Database). Le foto sono organizzate in cartelle per persona.
+
 ## 🚀 Setup Firebase
 
 ### 1. Crea un progetto Firebase
@@ -18,61 +20,46 @@ Un sito web interattivo per celebrare il compleanno con foto caricate dagli amic
 3. Scegli "Inizia in modalità test" (per iniziare rapidamente)
 4. Scegli una location per il tuo storage (es: europe-west)
 
-### 3. Abilita Realtime Database
+**⚠️ IMPORTANTE**: Non serve abilitare Realtime Database! Il sito usa solo Storage.
 
-1. Nel menu laterale, vai su **Realtime Database**
-2. Clicca su "Crea database"
-3. Scegli "Inizia in modalità test" (per iniziare rapidamente)
-4. Scegli una location (preferibilmente la stessa dello Storage)
+### 3. Configura le regole di sicurezza Storage
 
-### 4. Configura le regole di sicurezza
+⚠️ **IMPORTANTE**: Firebase ti avviserà che le regole sono pubbliche. Questo è normale per il funzionamento del sito.
 
-⚠️ **IMPORTANTE**: Firebase ti avviserà che le regole sono pubbliche. Questo è normale per il funzionamento del sito, ma possiamo migliorare la sicurezza.
+**Storage Rules (Storage > Rules)** - Copia e incolla questo:
 
-#### Opzione A: Regole Base (Funzionano subito, meno sicure)
-Per iniziare rapidamente, usa queste regole semplici:
-
-**Storage Rules (Storage > Rules)**
 ```javascript
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
-    match /photos/{userId}/{allPaths=**} {
+    match /photos/{allPaths=**} {
+      // Tutti possono leggere
       allow read: if true;
-      allow write: if true;
+
+      // Chiunque può caricare, ma con limitazioni:
+      // - Solo file sotto 10MB
+      allow write: if request.resource.size < 10 * 1024 * 1024
+                   && request.resource.contentType.startsWith('image/');
+
+      // Permetti anche message.txt
+      match /photos/{userId}/message.txt {
+        allow read: if true;
+        allow write: if request.resource.size < 10240; // Max 10KB per messaggio
+      }
     }
   }
 }
 ```
 
-**Database Rules (Realtime Database > Rules)**
-```json
-{
-  "rules": {
-    ".read": true,
-    ".write": true
-  }
-}
-```
+**Cosa fanno queste regole:**
+- ✅ Permettono lettura a tutti (necessario per visualizzare)
+- ✅ Permettono upload solo di immagini < 10MB
+- ✅ Permettono salvare `message.txt` per i messaggi
+- ✅ Mantengono la funzionalità (chiunque può caricare foto)
 
-#### Opzione B: Regole Migliorate (Consigliate - Più sicure)
-Per una sicurezza migliore mantenendo la funzionalità, usa le regole nel file `firebase-rules.md`:
+**Nota**: L'avviso di sicurezza di Firebase è normale. Le regole devono essere pubbliche per permettere agli amici di caricare foto senza autenticazione.
 
-1. Apri il file `firebase-rules.md` nella root del progetto
-2. Copia le regole Storage e incollale in **Storage > Rules**
-3. Copia le regole Database e incollale in **Realtime Database > Rules**
-4. Clicca **Pubblica** per entrambe
-
-**Cosa migliorano le regole avanzate:**
-- ✅ Limitano la dimensione dei file (max 10MB)
-- ✅ Permettono solo file immagine
-- ✅ Validano i dati inseriti nel database
-- ✅ Prevengono dati malformati
-- ✅ Mantengono la funzionalità (chiunque può ancora caricare foto)
-
-**Nota**: L'avviso di sicurezza di Firebase è normale. Le regole devono essere pubbliche per permettere agli amici di caricare foto senza autenticazione. Le regole migliorate limitano comunque gli abusi.
-
-### 5. Ottieni le credenziali Firebase
+### 4. Ottieni le credenziali Firebase
 
 1. Vai su **Project Settings** (icona ingranaggio in alto a sinistra)
 2. Scorri fino a "Your apps"
@@ -83,7 +70,7 @@ Per una sicurezza migliore mantenendo la funzionalità, usa le regole nel file `
    - Firebase Hosting è un servizio separato che NON serve per questo progetto
 6. Copia il codice di configurazione che appare (il blocco `firebaseConfig`)
 
-### 6. Configura il sito
+### 5. Configura il sito
 
 1. Apri `assets/js/firebase-config.js`
 2. Sostituisci tutti i valori `YOUR_*` con quelli copiati dalla console Firebase:
@@ -95,9 +82,9 @@ Per una sicurezza migliore mantenendo la funzionalità, usa le regole nel file `
    - `messagingSenderId`
    - `appId`
 
-### 7. Aggiungi Firebase SDK
+### 6. Firebase SDK
 
-Il sito usa Firebase SDK tramite CDN (già incluso negli HTML). Se preferisci, puoi installarlo via npm, ma per GitHub Pages il CDN è più semplice.
+Il sito usa Firebase SDK tramite CDN (già incluso negli HTML). Solo Storage SDK è necessario (non Database).
 
 ## 📁 Struttura File
 
@@ -159,20 +146,26 @@ chiara/
 ## ⚠️ Note Importanti
 
 - Firebase Storage gratuito: 5GB di storage, 1GB di download/giorno
-- Firebase Realtime Database gratuito: 1GB di storage, 10GB di trasferimento/mese
-- Per sicurezza, considera di limitare l'accesso dopo il compleanno modificando le regole Firebase
+- **Non serve Realtime Database** - il sito usa solo Storage
+- Per sicurezza, considera di limitare l'accesso dopo il compleanno modificando le regole Firebase (cambia `allow write: if ...` in `allow write: if false`)
 
 ## 🐛 Troubleshooting
 
 **Le foto non si caricano?**
-- Controlla che le credenziali Firebase siano corrette
+- Controlla che le credenziali Firebase siano corrette in `firebase-config.js`
 - Verifica le regole di Storage nel Firebase Console
+- Assicurati che Storage sia abilitato nel progetto Firebase
 
-**Il database non funziona?**
-- Controlla che Realtime Database sia abilitato
-- Verifica le regole del database
+**Le foto non appaiono nella galleria?**
+- Controlla la console del browser per errori (F12)
+- Verifica che le foto siano state caricate correttamente in Storage
+- Assicurati che le regole Storage permettano la lettura (`allow read: if true`)
 
 **La musica non parte?**
-- Assicurati che il file MP3 esista in `assets/music/`
-- Alcuni browser bloccano l'autoplay audio - l'utente deve interagire prima
+- Assicurati che il file MP3 esista in `assets/music/background.mp3`
+- Alcuni browser bloccano l'autoplay audio - l'utente deve interagire prima (cliccare play)
+
+**Il messaggio non viene salvato?**
+- Verifica che le regole Storage permettano di salvare `message.txt`
+- Controlla che il messaggio non superi 10KB
 

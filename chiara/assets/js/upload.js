@@ -1,4 +1,4 @@
-// Upload Foto - Gestione caricamento foto su Firebase
+// Upload Foto - Gestione caricamento foto su Firebase Storage
 
 document.addEventListener('DOMContentLoaded', function() {
     const uploadForm = document.getElementById('uploadForm');
@@ -59,7 +59,6 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const timestamp = Date.now();
             const uploadPromises = [];
-            const photoUrls = [];
 
             // Upload ogni foto
             for (let i = 0; i < photos.length; i++) {
@@ -82,13 +81,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 console.error('Errore upload:', error);
                                 reject(error);
                             },
-                            async () => {
-                                // Upload completato, ottieni URL
-                                const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
-                                photoUrls.push({
-                                    url: downloadURL,
-                                    name: photo.name
-                                });
+                            () => {
                                 resolve();
                             }
                         );
@@ -99,39 +92,18 @@ document.addEventListener('DOMContentLoaded', function() {
             // Aspetta che tutti gli upload siano completati
             await Promise.all(uploadPromises);
 
-            // Salva metadati nel database
-            const userRef = database.ref(`users/${friendName}`);
-            const userData = await userRef.once('value');
-            const existingData = userData.val() || { photos: [], messages: [] };
-
-            // Aggiungi nuove foto
-            photoUrls.forEach(photoData => {
-                existingData.photos.push({
-                    url: photoData.url,
-                    name: photoData.name,
-                    timestamp: timestamp
-                });
-            });
-
-            // Aggiungi messaggio se presente
+            // Salva messaggio se presente
             if (message) {
-                existingData.messages.push({
-                    text: message,
-                    timestamp: timestamp
-                });
+                const messageRef = storage.ref(`photos/${friendName}/message.txt`);
+                const messageBlob = new Blob([message], { type: 'text/plain' });
+                await messageRef.put(messageBlob);
             }
-
-            // Salva nome utente
-            existingData.name = friendName;
-            existingData.lastUpdate = timestamp;
-
-            await userRef.set(existingData);
 
             // Successo!
             showStatus(`Perfetto! ${photos.length} foto caricate con successo! 🎉`, 'success');
             progressBar.value = 100;
 
-            // Reset form dopo 2 secondi
+            // Reset form dopo 3 secondi
             setTimeout(() => {
                 uploadForm.reset();
                 previewContainer.innerHTML = '';
@@ -156,4 +128,3 @@ document.addEventListener('DOMContentLoaded', function() {
         statusMessage.style.display = message ? 'block' : 'none';
     }
 });
-
