@@ -238,6 +238,48 @@ function startFullSlideshow() {
     }
 }
 
+// Trova l'indice della prima slide della persona precedente/successiva
+function findPersonBoundary(currentIndex, direction) {
+    if (!currentSlideshow || !currentSlideshow.photos.length) return currentIndex;
+
+    const currentPerson = currentSlideshow.photos[currentIndex].userName;
+    let newIndex = currentIndex;
+
+    if (direction === 'next') {
+        // Salta tutte le slide della persona corrente
+        while (newIndex < currentSlideshow.photos.length - 1 &&
+               currentSlideshow.photos[newIndex].userName === currentPerson) {
+            newIndex++;
+        }
+        // Se siamo arrivati alla fine, torna all'inizio
+        if (newIndex === currentSlideshow.photos.length - 1 &&
+            currentSlideshow.photos[newIndex].userName === currentPerson) {
+            newIndex = 0;
+        }
+    } else if (direction === 'prev') {
+        // Vai alla slide precedente
+        if (newIndex > 0) {
+            newIndex--;
+            const prevPerson = currentSlideshow.photos[newIndex].userName;
+            // Trova l'inizio di quella persona
+            while (newIndex > 0 &&
+                   currentSlideshow.photos[newIndex - 1].userName === prevPerson) {
+                newIndex--;
+            }
+        } else {
+            // Se siamo all'inizio, vai all'ultima persona
+            newIndex = currentSlideshow.photos.length - 1;
+            const lastPerson = currentSlideshow.photos[newIndex].userName;
+            while (newIndex > 0 &&
+                   currentSlideshow.photos[newIndex - 1].userName === lastPerson) {
+                newIndex--;
+            }
+        }
+    }
+
+    return newIndex;
+}
+
 // Mostra slide corrente
 function displaySlide(index) {
     if (!currentSlideshow || index < 0 || index >= currentSlideshow.photos.length) return;
@@ -438,6 +480,26 @@ function setupSlideshowControls() {
                     startSlideshowAutoPlay();
                 }
             }
+        });
+    }
+
+    // Listener per navigazione tra persone
+    const prevPersonBtn = document.getElementById('prevPersonBtn');
+    const nextPersonBtn = document.getElementById('nextPersonBtn');
+
+    if (prevPersonBtn) {
+        prevPersonBtn.addEventListener('click', () => {
+            if (!currentSlideshow) return;
+            currentSlideshow.currentIndex = findPersonBoundary(currentSlideshow.currentIndex, 'prev');
+            displaySlide(currentSlideshow.currentIndex);
+        });
+    }
+
+    if (nextPersonBtn) {
+        nextPersonBtn.addEventListener('click', () => {
+            if (!currentSlideshow) return;
+            currentSlideshow.currentIndex = findPersonBoundary(currentSlideshow.currentIndex, 'next');
+            displaySlide(currentSlideshow.currentIndex);
         });
     }
 }

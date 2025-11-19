@@ -10,35 +10,20 @@ Copia questa regola nella sezione **Storage > Rules**:
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
-    match /photos/{allPaths=**} {
-      // Tutti possono leggere
-      allow read: if true;
-
-      // Chiunque può caricare foto e video, ma con limitazioni:
-      // - Foto: max 10MB
-      // - Video: max 50MB
-      // - Solo file immagine o video
-      allow write: if request.resource.size < 50 * 1024 * 1024
-                   && (request.resource.contentType.startsWith('image/')
-                       || request.resource.contentType.startsWith('video/'));
-
-      // Permetti anche message.txt
-      match /photos/{userId}/message.txt {
-        allow read: if true;
-        allow write: if request.resource.size < 10240; // Max 10KB per messaggio
-      }
+    match /{allPaths=**} {
+      allow read, write: if true;
     }
   }
 }
 ```
 
 **Cosa fanno queste regole:**
-- ✅ Permettono a chiunque di leggere foto e video (necessario per visualizzarli)
-- ✅ Permettono a chiunque di caricare foto e video, ma solo:
-  - File immagine (JPEG, PNG, GIF, etc.) - max 10MB
-  - File video (MP4, MOV, WebM, etc.) - max 50MB
-- ✅ Permettono salvare `message.txt` per i messaggi
-- ✅ Prevengono upload di file non validi
+- ✅ Permettono a chiunque di leggere e scrivere qualsiasi file
+- ✅ Semplice e funzionale per un sito tra amici
+- ✅ Nessuna restrizione su tipo o dimensione file
+- ⚠️ Perfetto per il tuo caso d'uso (compleanno con amici)
+
+**Nota**: Queste regole sono pubbliche, il che è normale per permettere agli amici di caricare foto senza autenticazione. Se dopo il compleanno vuoi bloccare nuovi upload, cambia `allow read, write: if true;` in `allow read: if true; allow write: if false;`
 
 ## 🗄️ Database Rules (Realtime Database > Rules)
 

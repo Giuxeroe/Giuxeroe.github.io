@@ -32,36 +32,20 @@ Un sito web interattivo per celebrare il compleanno con foto caricate dagli amic
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
-    match /photos/{allPaths=**} {
-      // Tutti possono leggere
-      allow read: if true;
-
-      // Chiunque può caricare foto e video, ma con limitazioni:
-      // - Foto: max 10MB
-      // - Video: max 50MB
-      // - Solo file immagine o video
-      allow write: if request.resource.size < 50 * 1024 * 1024
-                   && (request.resource.contentType.startsWith('image/')
-                       || request.resource.contentType.startsWith('video/'));
-
-      // Permetti anche message.txt
-      match /photos/{userId}/message.txt {
-        allow read: if true;
-        allow write: if request.resource.size < 10240; // Max 10KB per messaggio
-      }
+    match /{allPaths=**} {
+      allow read, write: if true;
     }
   }
 }
 ```
 
 **Cosa fanno queste regole:**
-- ✅ Permettono lettura a tutti (necessario per visualizzare)
-- ✅ Permettono upload di immagini < 10MB e video < 50MB
-- ✅ Supportano tutti i formati video comuni (MP4, MOV, WebM, AVI, ecc.)
-- ✅ Permettono salvare `message.txt` per i messaggi
-- ✅ Mantengono la funzionalità (chiunque può caricare foto e video)
+- ✅ Permettono a chiunque di leggere e scrivere qualsiasi file
+- ✅ Semplice e funzionale per un sito tra amici
+- ✅ Supporta foto, video e messaggi senza restrizioni
+- ⚠️ Perfetto per il tuo caso d'uso (compleanno con amici)
 
-**Nota**: L'avviso di sicurezza di Firebase è normale. Le regole devono essere pubbliche per permettere agli amici di caricare foto senza autenticazione.
+**Nota**: L'avviso di sicurezza di Firebase è normale. Le regole devono essere pubbliche per permettere agli amici di caricare foto senza autenticazione. Se dopo il compleanno vuoi bloccare nuovi upload, cambia `allow read, write: if true;` in `allow read: if true; allow write: if false;`
 
 ### 4. Ottieni le credenziali Firebase
 

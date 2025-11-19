@@ -1,35 +1,56 @@
 <!-- a68ff52c-4ebc-40fd-b48d-a899bfc27a7c 5a344ebb-cc75-4006-b468-b14b1ce488ce -->
-# Controllo Velocità Slideshow e Messaggio Visibile
+# Fix Firebase Storage Rules for Video Upload
 
-## Modifiche da fare
+## Problem
 
-### 1. Aggiorna `index.html`
+The current Firebase Storage rules have two issues:
 
-- Aggiungi uno slider per la velocità sotto i controlli dello slideshow
-- Range: da 1 secondo a 10 secondi (default 5 secondi)
-- Mostra il valore corrente dello slider (es: "5s")
-- Il messaggio della persona è già presente, assicuriamoci che sia sempre visibile
+1. Nested `match /photos/{userId}/message.txt` inside `match /photos/{allPaths=**}` causes path conflicts
+2. The rules only allow `image/*` and `video/*` content types, but `message.txt` is `text/plain`, so it gets rejected
 
-### 2. Aggiorna `main.js`
+## Solution
 
-- Aggiungi variabile per la velocità dello slideshow (default 5000ms)
-- Listener per lo slider che aggiorna la velocità
-- Quando cambia la velocità, riavvia l'autoplay con il nuovo intervallo
-- Assicurati che il messaggio della persona sia sempre mostrato nello slideshow (non solo quando presente)
-- Per i video, il messaggio deve rimanere visibile durante la riproduzione
+Update `chiara/firebase-rules.md` to use a single, simplified rule that allows:
 
-### 3. Aggiorna `style.css`
+- Images up to 10MB
+- Videos up to 50MB  
+- Text files (message.txt) up to 10KB
 
-- Stili per lo slider della velocità
-- Assicura che il messaggio sia sempre visibile e leggibile
-- Migliora il layout dei controlli per includere lo slider
+Replace the Storage Rules section (lines 10-33) with:
 
-### 4. Comportamento
+```javascript
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /photos/{allPaths=**} {
+      // Tutti possono leggere
+      allow read: if true;
 
-- Lo slider funziona solo per le foto (i video hanno durata propria)
-- Quando l'utente cambia la velocità, l'effetto è immediato
-- Il valore è salvato durante la sessione
-- Il messaggio della persona è sempre visibile sotto il nome
+      // Chiunque può caricare foto, video e messaggi
+      allow write: if (
+        // Immagini: max 10MB
+        (request.resource.contentType.startsWith('image/') && request.resource.size < 10 * 1024 * 1024)
+        ||
+        // Video: max 50MB
+        (request.resource.contentType.startsWith('video/') && request.resource.size < 50 * 1024 * 1024)
+        ||
+        // File di testo (message.txt): max 10KB
+        (request.resource.contentType.startsWith('text/') && request.resource.size < 10240)
+      );
+    }
+  }
+}
+```
+
+Also update `chiara/README.md` Firebase Storage rules section (around line 110-140) with the same corrected rules.
+
+## User Action Required
+
+After the files are updated, the user must manually apply these rules in Firebase Console:
+
+1. Go to Firebase Console > Storage > Rules
+2. Copy and paste the new rules
+3. Click "Publish"
 
 ### To-dos
 
