@@ -793,11 +793,84 @@ body {
         left: 10px;
         width: auto;
         max-width: none;
+        padding: 8px;
+        gap: 6px;
+        border-radius: 10px;
+    }
+
+    .slideshow-info h3,
+    #slideshowUserName {
+        font-size: 0.75rem;
+        margin-bottom: 3px;
+    }
+
+    #slideCounter {
+        font-size: 0.7rem;
+        margin-bottom: 4px;
+    }
+
+    #slideshowMessage {
+        font-size: 0.7rem;
+    }
+
+    .slideshow-controls {
+        gap: 5px;
+    }
+
+    .slideshow-controls button {
+        padding: 6px 8px;
+        font-size: 0.7rem;
+        border-radius: 15px;
+        border-width: 1px;
+    }
+
+    .person-controls {
+        gap: 5px;
+    }
+
+    .person-controls button {
+        padding: 6px 8px;
+        font-size: 0.7rem;
+        border-radius: 15px;
+    }
+
+    .speed-control,
+    .size-control {
+        padding: 6px;
+        gap: 4px;
+    }
+
+    .speed-control label,
+    .size-control label {
+        font-size: 0.75rem;
+    }
+
+    #speedValue,
+    #sizeValue {
+        font-size: 0.75rem;
+    }
+
+    #speedSlider,
+    #sizeSlider {
+        height: 4px;
+    }
+
+    #speedSlider::-webkit-slider-thumb,
+    #sizeSlider::-webkit-slider-thumb {
+        width: 14px;
+        height: 14px;
+    }
+
+    #speedSlider::-moz-range-thumb,
+    #sizeSlider::-moz-range-thumb {
+        width: 14px;
+        height: 14px;
     }
 
     /* Keep container at 100% to prevent shifting */
     .slideshow-container {
         padding-right: 0;
+        padding-bottom: 180px; /* Adjusted for smaller panel */
         height: 100%;
     }
 
