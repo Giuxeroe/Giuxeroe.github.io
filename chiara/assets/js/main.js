@@ -5,6 +5,7 @@ let currentSlideshow = null;
 let backgroundMusic = null;
 let currentVideoElement = null;
 let slideshowSpeed = 5000; // Velocità slideshow in millisecondi (default 5 secondi)
+let photoScale = 1.0; // Scala foto/video (default 100%)
 
 // Helper: determina se un file è un video basato sul nome
 function isVideo(fileName) {
@@ -386,6 +387,19 @@ function findPersonBoundary(currentIndex, direction) {
     return newIndex;
 }
 
+// Applica la scala alla foto/video corrente
+function applyPhotoScale() {
+    const slideshowImage = document.getElementById('slideshowImage');
+    const slideshowVideo = document.getElementById('slideshowVideo');
+
+    if (slideshowImage) {
+        slideshowImage.style.transform = `scale(${photoScale})`;
+    }
+    if (slideshowVideo) {
+        slideshowVideo.style.transform = `scale(${photoScale})`;
+    }
+}
+
 // Mostra slide corrente
 function displaySlide(index) {
     if (!currentSlideshow || index < 0 || index >= currentSlideshow.photos.length) return;
@@ -466,6 +480,9 @@ function displaySlide(index) {
 
         currentVideoElement = videoElement;
 
+        // Applica scala al video
+        applyPhotoScale();
+
         // Quando il video finisce, passa alla slide successiva
         videoElement.addEventListener('ended', handleVideoEnded);
 
@@ -490,6 +507,9 @@ function displaySlide(index) {
 
         // Append image to container
         slideshowContainer.appendChild(imgElement);
+
+        // Applica scala all'immagine
+        applyPhotoScale();
 
         // Riprendi autoplay normale per le foto
         // Ferma prima l'autoplay esistente per evitare intervalli multipli
@@ -620,6 +640,19 @@ function setupSlideshowControls() {
                     startSlideshowAutoPlay();
                 }
             }
+        });
+    }
+
+    // Listener per lo slider della dimensione
+    const sizeSlider = document.getElementById('sizeSlider');
+    const sizeValue = document.getElementById('sizeValue');
+
+    if (sizeSlider && sizeValue) {
+        sizeSlider.addEventListener('input', (e) => {
+            const percentage = parseInt(e.target.value);
+            photoScale = percentage / 100; // Converti percentuale in scala (es. 100 -> 1.0, 150 -> 1.5)
+            sizeValue.textContent = `${percentage}%`;
+            applyPhotoScale();
         });
     }
 

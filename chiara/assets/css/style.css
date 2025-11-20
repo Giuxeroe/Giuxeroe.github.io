@@ -285,6 +285,8 @@ body {
     width: auto;
     height: auto;
     object-fit: contain;
+    transform-origin: center center;
+    transition: transform 0.2s ease;
 }
 
 #slideshowVideo {
@@ -464,6 +466,69 @@ body {
 }
 
 #speedValue {
+    color: white;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.size-control {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    padding: 8px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.3);
+    display: flex;
+}
+
+.size-control label {
+    color: white;
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+#sizeSlider {
+    width: 100%;
+    height: 5px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: rgba(255,255,255,0.3);
+    border-radius: 5px;
+    outline: none;
+    cursor: pointer;
+}
+
+#sizeSlider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    background: white;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+#sizeSlider::-webkit-slider-thumb:hover {
+    background: #ff6b6b;
+}
+
+#sizeSlider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    background: white;
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+    transition: background 0.2s;
+}
+
+#sizeSlider::-moz-range-thumb:hover {
+    background: #ff6b6b;
+}
+
+#sizeValue {
     color: white;
     font-weight: bold;
     font-size: 0.9rem;
