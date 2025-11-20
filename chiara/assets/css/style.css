@@ -290,6 +290,7 @@ body {
     width: 100%;
     position: relative;
     border-top: 1px solid rgba(255,255,255,0.2);
+    min-height: 80px; /* Prevent collapsing */
 }
 
 /* Intro slide styling */
@@ -319,8 +320,9 @@ body {
 }
 
 #slideshowUserName {
-    font-size: 1.5rem;
-    margin-bottom: 10px;
+    font-size: 1.2rem; /* Smaller */
+    margin-bottom: 5px;
+    min-height: 1.5em; /* Fixed height */
 }
 
 #slideshowMessage {
@@ -332,15 +334,17 @@ body {
 }
 
 #slideCounter {
-    margin-top: 10px;
+    margin-top: 5px;
     opacity: 0.7;
+    font-size: 0.9rem;
+    min-height: 1.2em; /* Fixed height */
 }
 
 .slideshow-controls {
     display: flex;
     justify-content: center;
-    gap: 15px;
-    padding: 20px;
+    gap: 10px; /* Smaller gap */
+    padding: 12px 15px; /* Smaller padding */
     background: rgba(0,0,0,0.8);
     width: 100%;
     flex-wrap: wrap;
@@ -350,13 +354,13 @@ body {
 }
 
 .slideshow-controls button {
-    padding: 12px 25px;
+    padding: 8px 16px; /* Smaller */
     background: rgba(255,255,255,0.2);
     color: white;
     border: 2px solid white;
-    border-radius: 25px;
+    border-radius: 20px;
     cursor: pointer;
-    font-size: 1rem;
+    font-size: 0.85rem; /* Smaller */
     transition: background 0.2s;
 }
 
@@ -368,21 +372,21 @@ body {
 .speed-control {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 8px 15px;
+    gap: 6px; /* Smaller */
+    padding: 6px 12px; /* Smaller */
     background: rgba(255,255,255,0.1);
-    border-radius: 20px;
+    border-radius: 15px;
     border: 1px solid rgba(255,255,255,0.3);
 }
 
 .speed-control label {
     color: white;
-    font-size: 0.9rem;
+    font-size: 0.8rem; /* Smaller */
     white-space: nowrap;
 }
 
 #speedSlider {
-    width: 120px;
+    width: 80px; /* Smaller */
     height: 5px;
     -webkit-appearance: none;
     appearance: none;
@@ -424,7 +428,7 @@ body {
 #speedValue {
     color: white;
     font-weight: bold;
-    font-size: 0.9rem;
+    font-size: 0.8rem; /* Smaller */
     min-width: 30px;
     text-align: center;
 }
@@ -432,8 +436,8 @@ body {
 /* Controlli navigazione tra persone */
 .person-controls {
     display: flex;
-    gap: 15px;
-    padding: 15px 20px;
+    gap: 10px; /* Smaller */
+    padding: 10px 15px; /* Smaller */
     justify-content: center;
     flex-wrap: wrap;
     background: rgba(0,0,0,0.8);
@@ -444,12 +448,12 @@ body {
 }
 
 .person-controls button {
-    padding: 12px 20px;
+    padding: 8px 16px; /* Smaller */
     background: rgba(255,255,255,0.15);
     border: 1px solid rgba(255,255,255,0.4);
-    border-radius: 25px;
+    border-radius: 20px;
     color: white;
-    font-size: 0.95rem;
+    font-size: 0.85rem; /* Smaller */
     cursor: pointer;
     transition: all 0.3s ease;
     font-weight: 500;

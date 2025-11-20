@@ -61,8 +61,10 @@ async function loadUsersData() {
                 const messageUrl = await messageRef.getDownloadURL();
                 const response = await fetch(messageUrl);
                 message = await response.text();
+                console.log(`User: ${userName}, Message: "${message}"`);
             } catch (e) {
                 // Nessun messaggio o errore lettura
+                console.log(`User: ${userName}, No message file or error:`, e);
             }
 
             // Ottieni URL per ogni file
@@ -429,6 +431,7 @@ function displaySlide(index) {
 
     // Handle intro slides
     if (slide.isIntro) {
+        console.log('Intro slide:', slide.userName, 'Message:', slide.message, 'Type:', typeof slide.message);
         // Show intro slide with message
         const introDiv = document.createElement('div');
         introDiv.className = 'slideshow-intro';
