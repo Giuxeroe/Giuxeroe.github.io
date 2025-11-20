@@ -1,75 +1,49 @@
 <!-- a68ff52c-4ebc-40fd-b48d-a899bfc27a7c 7437637c-0952-4316-8959-4c5397fe30f7 -->
-# Fix Floating Panel Implementation
+# Make Photos Larger and Show Messages
 
 ## Issues Identified
 
-1. Floating panel blocks photo interaction (z-index and positioning)
-2. Container size mismatch causes content shifting (100vh vs 98vh)
-3. Panel needs pointer-events management
+1. **Photos could be larger**: Currently photos use the full container, but the floating panel (280px wide) visually blocks part of the view
+2. **Messages not showing**: Messages are cleared on regular slides (line 501 in main.js), only shown on intro slides
 
-## Solution
+## Solutions
 
-### 1. Fix Modal Content Size (`chiara/assets/css/style.css`)
+### 1. Make Floating Panel Smaller (`chiara/assets/css/style.css`)
 
-- Set `.modal-content` to fixed size: `width: 100vw; height: 100vh`
-- Remove `max-width` and `max-height` to prevent shifting
-- Ensure `.slideshow-container` fills parent: `width: 100%; height: 100%`
+- Reduce panel width from 280px to 220px for more photo space
+- Reduce padding and font sizes slightly to fit content
+- This gives photos more visual presence
 
-### 2. Fix Floating Panel Interaction
+### 2. Show Messages in Floating Panel (`chiara/assets/js/main.js`)
 
-- Panel needs `pointer-events: auto` so it's clickable
-- Panel should not block photos behind it (already has transparent background)
-- Ensure panel is properly positioned relative to container
-
-### 3. Ensure Fixed Layout
-
-- Remove conflicting height values
-- Make sure photos scale within fixed container
-- Panel stays in bottom-right, fixed position
+- On regular photo/video slides, display the user's message in the floating panel
+- Change line 501 from `slideshowMessage.textContent = '';` to `slideshowMessage.textContent = slide.message || '';`
+- Keep message visible during person's photos
+- Hide message only on intro slides (where it's shown large in main area)
 
 ## Key Changes
 
+CSS:
+
 ```css
-/* Modal fixed size - no shifting */
-#slideshowModal .modal-content {
-    width: 100vw;
-    height: 100vh;
-    padding: 0;
-    background: #000;
-    position: relative;
-    overflow: hidden;
-}
-
-/* Container fills modal */
-.slideshow-container {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #000;
-    position: relative;
-}
-
-/* Panel clickable, not blocking */
 .slideshow-floating-panel {
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
-    width: 280px;
-    background: rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(10px);
-    z-index: 50;
-    pointer-events: auto;
+    width: 220px;  /* Was 280px */
+    padding: 12px;  /* Was 15px */
 }
 ```
 
-This ensures:
+JavaScript:
 
-- No content shifting (fixed 100vw x 100vh)
-- Panel is clickable
-- Photos fill available space
-- No layout jumping when photos change
+```javascript
+// Show message on regular slides (not just intro)
+slideshowMessage.textContent = slide.message || '';
+```
+
+This achieves:
+
+- More screen space for photos (60px wider visible area)
+- Messages visible throughout person's slides
+- Better user experience
 
 ### To-dos
 
