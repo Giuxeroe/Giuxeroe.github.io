@@ -296,21 +296,13 @@ function startFullSlideshow() {
 
     // Mostra loading overlay
     const slideshowLoading = document.getElementById('slideshowLoading');
-    const slideshowContainer = document.querySelector('.slideshow-container');
-    const slideshowControls = document.querySelector('.slideshow-controls');
-    const personControls = document.querySelector('.person-controls');
+    const slideshowWrapper = document.querySelector('.slideshow-wrapper');
 
     if (slideshowLoading) {
         slideshowLoading.style.display = 'flex';
     }
-    if (slideshowContainer) {
-        slideshowContainer.style.display = 'none';
-    }
-    if (slideshowControls) {
-        slideshowControls.style.display = 'none';
-    }
-    if (personControls) {
-        personControls.style.display = 'none';
+    if (slideshowWrapper) {
+        slideshowWrapper.style.display = 'none';
     }
 
     // Precarica tutte le immagini
@@ -319,14 +311,8 @@ function startFullSlideshow() {
         if (slideshowLoading) {
             slideshowLoading.style.display = 'none';
         }
-        if (slideshowContainer) {
-            slideshowContainer.style.display = 'block';
-        }
-        if (slideshowControls) {
-            slideshowControls.style.display = 'flex';
-        }
-        if (personControls) {
-            personControls.style.display = 'flex';
+        if (slideshowWrapper) {
+            slideshowWrapper.style.display = 'flex';
         }
 
         // Avvia slideshow with cached images
@@ -418,13 +404,13 @@ function displaySlide(index) {
     }
 
     const slide = currentSlideshow.photos[index];
-    const slideshowContainer = document.querySelector('.slideshow-container');
+    const slideshowMedia = document.querySelector('.slideshow-media');
     const slideshowUserName = document.getElementById('slideshowUserName');
     const slideshowMessage = document.getElementById('slideshowMessage');
     const slideshowProgress = document.getElementById('slideshowProgress');
 
     // Rimuovi elemento precedente (media o intro)
-    const oldMedia = slideshowContainer.querySelector('#slideshowImage, #slideshowVideo, .slideshow-intro');
+    const oldMedia = slideshowMedia.querySelector('#slideshowImage, #slideshowVideo, .slideshow-intro');
     if (oldMedia) {
         oldMedia.remove();
     }
@@ -439,7 +425,7 @@ function displaySlide(index) {
             <h2>${slide.userName}</h2>
             ${slide.message && slide.message.trim() ? `<p>${slide.message}</p>` : '<p style="opacity: 0.5;">Nessun messaggio</p>'}
         `;
-        slideshowContainer.appendChild(introDiv);
+        slideshowMedia.appendChild(introDiv);
 
         // Clear info section
         slideshowUserName.textContent = '';
@@ -471,16 +457,8 @@ function displaySlide(index) {
         videoElement.src = slide.url;
         videoElement.autoplay = true;
         videoElement.controls = false;
-        videoElement.style.maxWidth = '90%';
-        videoElement.style.maxHeight = '60vh';
-        videoElement.style.width = 'auto';
-        videoElement.style.height = 'auto';
-        videoElement.style.objectFit = 'contain';
-        videoElement.style.borderRadius = '10px';
-
-        // Inserisci video prima dell'info
-        const infoDiv = slideshowContainer.querySelector('.slideshow-info');
-        slideshowContainer.insertBefore(videoElement, infoDiv);
+        // Append video to media area
+        slideshowMedia.appendChild(videoElement);
 
         currentVideoElement = videoElement;
 
@@ -505,16 +483,9 @@ function displaySlide(index) {
         }
 
         imgElement.alt = 'Slideshow';
-        imgElement.style.maxWidth = '90%';
-        imgElement.style.maxHeight = '60vh';
-        imgElement.style.width = 'auto';
-        imgElement.style.height = 'auto';
-        imgElement.style.objectFit = 'contain';
-        imgElement.style.borderRadius = '10px';
 
-        // Inserisci immagine prima dell'info
-        const infoDiv = slideshowContainer.querySelector('.slideshow-info');
-        slideshowContainer.insertBefore(imgElement, infoDiv);
+        // Append image to media area
+        slideshowMedia.appendChild(imgElement);
 
         // Riprendi autoplay normale per le foto
         // Ferma prima l'autoplay esistente per evitare intervalli multipli
