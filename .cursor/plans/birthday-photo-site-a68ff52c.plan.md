@@ -1,53 +1,78 @@
-<!-- a68ff52c-4ebc-40fd-b48d-a899bfc27a7c 6fff1b1c-03bf-4c6d-a4f9-6631f0f481c9 -->
-# Floating Control Panel Layout
+<!-- a68ff52c-4ebc-40fd-b48d-a899bfc27a7c 7437637c-0952-4316-8959-4c5397fe30f7 -->
+# Fix Floating Panel Implementation
 
-## Overview
+## Issues Identified
 
-Convert slideshow to fullscreen photos with a compact floating control panel overlaid on top.
+1. Floating panel blocks photo interaction (z-index and positioning)
+2. Container size mismatch causes content shifting (100vh vs 98vh)
+3. Panel needs pointer-events management
 
-## Implementation Steps
+## Solution
 
-### 1. Update HTML Structure (`chiara/index.html`)
+### 1. Fix Modal Content Size (`chiara/assets/css/style.css`)
 
-- Revert `.slideshow-wrapper` to single fullscreen container
-- Remove `.slideshow-media` and `.slideshow-sidebar` divs
-- Create `.slideshow-floating-panel` with all controls and info inside
-- Position panel to overlay on top of photos
+- Set `.modal-content` to fixed size: `width: 100vw; height: 100vh`
+- Remove `max-width` and `max-height` to prevent shifting
+- Ensure `.slideshow-container` fills parent: `width: 100%; height: 100%`
 
-### 2. Update CSS Layout (`chiara/assets/css/style.css`)
+### 2. Fix Floating Panel Interaction
 
-- Make slideshow container fullscreen (100% width/height)
-- Position photos to fill entire area
-- Style `.slideshow-floating-panel`:
-- Position: absolute, bottom right (or top right)
-- Semi-transparent background
-- Compact size (e.g., 250px wide)
-- Fixed position so it doesn't shift
-- Contains: info (name, counter, message), controls (prev/play/next), speed slider, person navigation
-- Add subtle shadow/border for visibility
-- Ensure panel stays on top (z-index)
+- Panel needs `pointer-events: auto` so it's clickable
+- Panel should not block photos behind it (already has transparent background)
+- Ensure panel is properly positioned relative to container
 
-### 3. Update JavaScript (`chiara/assets/js/main.js`)
+### 3. Ensure Fixed Layout
 
-- Update DOM queries to target fullscreen container
-- Append photos/videos directly to main container (not inside panel)
-- Panel remains fixed overlay, never gets removed/recreated
-- Simplify display logic since layout won't shift
+- Remove conflicting height values
+- Make sure photos scale within fixed container
+- Panel stays in bottom-right, fixed position
 
-### 4. Mobile Responsive
+## Key Changes
 
-- On mobile, move panel to bottom center
-- Make it horizontally scrollable or stack vertically if needed
+```css
+/* Modal fixed size - no shifting */
+#slideshowModal .modal-content {
+    width: 100vw;
+    height: 100vh;
+    padding: 0;
+    background: #000;
+    position: relative;
+    overflow: hidden;
+}
 
-## Key Benefits
+/* Container fills modal */
+.slideshow-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+    position: relative;
+}
 
-- Photos get full attention (entire modal)
-- No layout shifting (panel is fixed overlay)
-- Compact controls don't distract from content
-- Modern floating UI pattern
+/* Panel clickable, not blocking */
+.slideshow-floating-panel {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 280px;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(10px);
+    z-index: 50;
+    pointer-events: auto;
+}
+```
+
+This ensures:
+
+- No content shifting (fixed 100vw x 100vh)
+- Panel is clickable
+- Photos fill available space
+- No layout jumping when photos change
 
 ### To-dos
 
-- [x] 
-- [x] 
-- [x] 
+- [ ] Fix modal-content to 100vw x 100vh, remove max-width/max-height
+- [ ] Make slideshow-container 100% x 100%, remove conflicting vh values
+- [ ] Ensure floating panel has pointer-events auto and proper z-index
