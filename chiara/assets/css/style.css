@@ -797,12 +797,14 @@ body {
 
     /* Keep container at 100% to prevent shifting */
     .slideshow-container {
+        padding-right: 0;
         height: 100%;
     }
-}
 
-    #slideshowImage {
-        max-height: 50vh;
+    #slideshowImage,
+    #slideshowVideo {
+        max-width: 100vw;
+        max-height: calc(100vh - 200px); /* Leave space for bottom panel */
     }
 }
 

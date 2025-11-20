@@ -1,38 +1,46 @@
-<!-- dd472352-fc2a-401b-b87e-d79997c7d190 63ba1dec-56e1-48b5-bd32-ca37b30e51d5 -->
-# Add Photo Size Slider Control
+<!-- dd472352-fc2a-401b-b87e-d79997c7d190 420116b9-c436-468a-b294-73b864448e91 -->
+# Fix Mobile Slideshow Layout
 
-## Implementation Approach
+## Problem
 
-Add a new slider control in the floating panel that allows users to dynamically adjust the size of photos and videos from 50% to 150% of their current display size.
+On mobile, the floating control panel spans the full width at the bottom, but the slideshow container still has `padding-right: 300px` from desktop styles, causing photos to be pushed left and the panel to overlap them.
+
+Additionally, there are CSS syntax errors (duplicate closing brace at line 807).
+
+## Solution
+
+Update the mobile media query to:
+
+1. Remove padding-right from `.slideshow-container` on mobile
+2. Adjust photo/video max-width to use full viewport width
+3. Reduce photo max-height to account for the panel at bottom
+4. Fix CSS syntax errors
 
 ## Changes Required
 
-### 1. Add Size Slider UI (`index.html`)
+### `style.css` - Update mobile media query (lines 789-807)
 
-Add a new size control slider after the speed control (around line 79):
+Inside the `@media (max-width: 768px)` block:
 
-```html
-<div class="size-control">
-    <label for="sizeSlider">Dimensione: <span id="sizeValue">100%</span></label>
-    <input type="range" id="sizeSlider" min="50" max="150" value="100" step="5">
-</div>
+1. Update `.slideshow-container` to remove the padding and use full width:
+```css
+.slideshow-container {
+    padding-right: 0;
+    height: 100%;
+}
 ```
 
-### 2. Add Size Control Styling (`style.css`)
+2. Add mobile-specific styles for images/videos to use full viewport and leave space for bottom panel:
+```css
+#slideshowImage,
+#slideshowVideo {
+    max-width: 100vw;
+    max-height: calc(100vh - 200px); /* Leave space for bottom panel */
+}
+```
 
-Add styling for `.size-control` similar to `.speed-control` (around line 408-417). Use the same styling pattern.
+3. Fix the duplicate closing brace and move the stray `#slideshowImage` rule inside the media query or remove it
 
-### 3. Add JavaScript Logic (`main.js`)
+## File to Modify
 
-- Add a global variable `photoScale = 1.0` at the top with other globals (around line 7)
-- Add event listener for the size slider in `setupSlideshowControls()` (around line 620)
-- Apply the scale transform to `#slideshowImage` and `#slideshowVideo` when displaying slides
-- Update the scale dynamically when the slider changes
-
-The scale will be applied using CSS transform: `transform: scale(${photoScale})`
-
-## Files to Modify
-
-- `chiara/index.html` - Add size slider HTML
-- `chiara/assets/css/style.css` - Add size control styling
-- `chiara/assets/js/main.js` - Add scale variable and slider logic
+- `chiara/assets/css/style.css` - Fix mobile responsive styles
