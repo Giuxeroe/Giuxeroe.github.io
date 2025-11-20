@@ -255,28 +255,20 @@ body {
     padding: 0;
     background: #000;
     color: white;
-    display: flex;
-    flex-direction: column;
     position: relative;
+    overflow: hidden;
 }
 
-/* New wrapper for horizontal layout */
-.slideshow-wrapper {
-    display: flex;
+/* Fullscreen slideshow container */
+.slideshow-container {
     width: 100%;
-    height: 90vh;
-    gap: 0;
-}
-
-/* Left side - Photo/Video area */
-.slideshow-media {
-    flex: 1;
+    height: 100vh;
+    max-height: 98vh;
     display: flex;
     align-items: center;
     justify-content: center;
     background: #000;
     position: relative;
-    overflow: hidden;
 }
 
 #slideshowImage,
@@ -293,20 +285,26 @@ body {
     width: 100%;
 }
 
-/* Right sidebar - All controls */
-.slideshow-sidebar {
-    width: 300px;
-    min-width: 300px;
-    background: rgba(0,0,0,0.95);
+/* Floating control panel */
+.slideshow-floating-panel {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 280px;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 15px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 50;
     display: flex;
     flex-direction: column;
-    overflow-y: auto;
+    gap: 12px;
 }
 
-/* Info section in sidebar */
+/* Info section in floating panel */
 .slideshow-info {
-    padding: 20px;
-    border-bottom: 1px solid rgba(255,255,255,0.2);
     text-align: left;
 }
 
@@ -337,61 +335,62 @@ body {
 }
 
 #slideshowUserName {
-    font-size: 1.1rem;
-    margin-bottom: 8px;
+    font-size: 1rem;
+    margin-bottom: 6px;
     word-wrap: break-word;
 }
 
 #slideshowMessage {
     font-style: italic;
     opacity: 0.9;
-    margin-top: 10px;
-    font-size: 0.9rem;
+    margin-top: 8px;
+    font-size: 0.85rem;
     word-wrap: break-word;
 }
 
 #slideCounter {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     opacity: 0.7;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
 }
 
 /* Progress bar at top of sidebar */
 #slideshowProgress {
     width: 100%;
-    height: 4px;
+    height: 3px;
     -webkit-appearance: none;
     appearance: none;
     border: none;
     background: rgba(255,255,255,0.2);
+    border-radius: 2px;
 }
 
 #slideshowProgress::-webkit-progress-bar {
     background: rgba(255,255,255,0.2);
+    border-radius: 2px;
 }
 
 #slideshowProgress::-webkit-progress-value {
     background: #ff6b6b;
+    border-radius: 2px;
 }
 
-/* Controls in sidebar */
+/* Controls in floating panel */
 .slideshow-controls {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    padding: 20px;
-    border-bottom: 1px solid rgba(255,255,255,0.2);
+    gap: 8px;
 }
 
 .slideshow-controls button {
     width: 100%;
-    padding: 12px;
+    padding: 10px;
     background: rgba(255,255,255,0.2);
     color: white;
     border: 2px solid white;
     border-radius: 20px;
     cursor: pointer;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     transition: background 0.2s;
 }
 
@@ -402,10 +401,10 @@ body {
 .speed-control {
     flex-direction: column;
     align-items: stretch;
-    gap: 8px;
-    padding: 12px;
+    gap: 6px;
+    padding: 8px;
     background: rgba(255,255,255,0.1);
-    border-radius: 15px;
+    border-radius: 10px;
     border: 1px solid rgba(255,255,255,0.3);
     display: flex;
 }
@@ -463,22 +462,21 @@ body {
 }
 
 /* Controlli navigazione tra persone */
-/* Person navigation in sidebar */
+/* Person navigation in floating panel */
 .person-controls {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    padding: 20px;
+    gap: 8px;
 }
 
 .person-controls button {
     width: 100%;
-    padding: 12px;
+    padding: 10px;
     background: rgba(255,255,255,0.15);
     border: 1px solid rgba(255,255,255,0.4);
     border-radius: 20px;
     color: white;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     cursor: pointer;
     transition: all 0.3s ease;
     font-weight: 500;
@@ -716,18 +714,16 @@ body {
     }
 
     /* Slideshow responsive */
-    .slideshow-wrapper {
-        flex-direction: column;
+    .slideshow-floating-panel {
+        bottom: 10px;
+        right: 10px;
+        left: 10px;
+        width: auto;
+        max-width: none;
     }
 
-    .slideshow-media {
-        height: 60vh;
-    }
-
-    .slideshow-sidebar {
-        width: 100%;
-        min-width: 100%;
-        max-height: 40vh;
+    .slideshow-container {
+        height: calc(100vh - 200px);
     }
 }
 

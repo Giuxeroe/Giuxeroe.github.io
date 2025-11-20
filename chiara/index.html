@@ -55,36 +55,33 @@
                     <span id="loadingProgressText">0%</span>
                 </div>
             </div>
-            <div class="slideshow-wrapper">
-                <!-- Left: Photo/Video area -->
-                <div class="slideshow-media">
-                    <!-- Photos/videos/intro slides go here dynamically -->
+            <div class="slideshow-container">
+                <!-- Photos/videos/intro slides go here dynamically -->
+            </div>
+
+            <!-- Floating control panel -->
+            <div class="slideshow-floating-panel">
+                <progress id="slideshowProgress" value="0" max="100"></progress>
+
+                <div class="slideshow-info">
+                    <h3 id="slideshowUserName"></h3>
+                    <div id="slideCounter"></div>
+                    <p id="slideshowMessage"></p>
                 </div>
 
-                <!-- Right: Sidebar with all controls -->
-                <div class="slideshow-sidebar">
-                    <progress id="slideshowProgress" value="0" max="100"></progress>
-
-                    <div class="slideshow-info">
-                        <h3 id="slideshowUserName"></h3>
-                        <div id="slideCounter"></div>
-                        <p id="slideshowMessage"></p>
+                <div class="slideshow-controls">
+                    <button id="prevBtn">⏮️ Precedente</button>
+                    <button id="playPauseBtn">⏸️ Pausa</button>
+                    <button id="nextBtn">⏭️ Successiva</button>
+                    <div class="speed-control">
+                        <label for="speedSlider">Velocità: <span id="speedValue">5s</span></label>
+                        <input type="range" id="speedSlider" min="1" max="10" value="5" step="1">
                     </div>
+                </div>
 
-                    <div class="slideshow-controls">
-                        <button id="prevBtn">⏮️ Precedente</button>
-                        <button id="playPauseBtn">⏸️ Pausa</button>
-                        <button id="nextBtn">⏭️ Successiva</button>
-                        <div class="speed-control">
-                            <label for="speedSlider">Velocità: <span id="speedValue">5s</span></label>
-                            <input type="range" id="speedSlider" min="1" max="10" value="5" step="1">
-                        </div>
-                    </div>
-
-                    <div class="person-controls">
-                        <button id="prevPersonBtn">⏪ Persona Precedente</button>
-                        <button id="nextPersonBtn">Persona Successiva ⏩</button>
-                    </div>
+                <div class="person-controls">
+                    <button id="prevPersonBtn">⏪ Persona Precedente</button>
+                    <button id="nextPersonBtn">Persona Successiva ⏩</button>
                 </div>
             </div>
         </div>

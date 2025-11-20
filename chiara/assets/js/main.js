@@ -296,13 +296,13 @@ function startFullSlideshow() {
 
     // Mostra loading overlay
     const slideshowLoading = document.getElementById('slideshowLoading');
-    const slideshowWrapper = document.querySelector('.slideshow-wrapper');
+    const slideshowContainer = document.querySelector('.slideshow-container');
 
     if (slideshowLoading) {
         slideshowLoading.style.display = 'flex';
     }
-    if (slideshowWrapper) {
-        slideshowWrapper.style.display = 'none';
+    if (slideshowContainer) {
+        slideshowContainer.style.display = 'none';
     }
 
     // Precarica tutte le immagini
@@ -311,8 +311,8 @@ function startFullSlideshow() {
         if (slideshowLoading) {
             slideshowLoading.style.display = 'none';
         }
-        if (slideshowWrapper) {
-            slideshowWrapper.style.display = 'flex';
+        if (slideshowContainer) {
+            slideshowContainer.style.display = 'flex';
         }
 
         // Avvia slideshow with cached images
@@ -404,13 +404,13 @@ function displaySlide(index) {
     }
 
     const slide = currentSlideshow.photos[index];
-    const slideshowMedia = document.querySelector('.slideshow-media');
+    const slideshowContainer = document.querySelector('.slideshow-container');
     const slideshowUserName = document.getElementById('slideshowUserName');
     const slideshowMessage = document.getElementById('slideshowMessage');
     const slideshowProgress = document.getElementById('slideshowProgress');
 
     // Rimuovi elemento precedente (media o intro)
-    const oldMedia = slideshowMedia.querySelector('#slideshowImage, #slideshowVideo, .slideshow-intro');
+    const oldMedia = slideshowContainer.querySelector('#slideshowImage, #slideshowVideo, .slideshow-intro');
     if (oldMedia) {
         oldMedia.remove();
     }
@@ -425,7 +425,7 @@ function displaySlide(index) {
             <h2>${slide.userName}</h2>
             ${slide.message && slide.message.trim() ? `<p>${slide.message}</p>` : '<p style="opacity: 0.5;">Nessun messaggio</p>'}
         `;
-        slideshowMedia.appendChild(introDiv);
+        slideshowContainer.appendChild(introDiv);
 
         // Clear info section
         slideshowUserName.textContent = '';
@@ -457,8 +457,8 @@ function displaySlide(index) {
         videoElement.src = slide.url;
         videoElement.autoplay = true;
         videoElement.controls = false;
-        // Append video to media area
-        slideshowMedia.appendChild(videoElement);
+        // Append video to container
+        slideshowContainer.appendChild(videoElement);
 
         currentVideoElement = videoElement;
 
@@ -484,8 +484,8 @@ function displaySlide(index) {
 
         imgElement.alt = 'Slideshow';
 
-        // Append image to media area
-        slideshowMedia.appendChild(imgElement);
+        // Append image to container
+        slideshowContainer.appendChild(imgElement);
 
         // Riprendi autoplay normale per le foto
         // Ferma prima l'autoplay esistente per evitare intervalli multipli
