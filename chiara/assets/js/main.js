@@ -15,6 +15,15 @@ function isVideo(fileName) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize interactive features first
+    lightboxManager = new LightboxManager();
+    animationController = new AnimationController();
+
+    // Celebrate on page load
+    setTimeout(() => {
+        ParticleEffects.celebrate();
+    }, 500);
+
     // Carica dati utenti da Storage
     loadUsersData();
 
@@ -60,12 +69,16 @@ async function loadUsersData() {
             const messageRef = folder.child('message.txt');
             try {
                 const messageUrl = await messageRef.getDownloadURL();
-                const response = await fetch(messageUrl);
-                message = await response.text();
-                console.log(`User: ${userName}, Message: "${message}"`);
+                try {
+                    const response = await fetch(messageUrl);
+                    message = await response.text();
+                    message = message.trim();
+                    console.log(`User: ${userName}, Message: "${message}"`);
+                } catch (fetchError) {
+                    console.log(`User: ${userName}, CORS or fetch error - file exists but can't be read:`, fetchError);
+                }
             } catch (e) {
-                // Nessun messaggio o errore lettura
-                console.log(`User: ${userName}, No message file or error:`, e);
+                console.log(`User: ${userName}, No message file:`, e.code);
             }
 
             // Ottieni URL per ogni file
@@ -88,7 +101,15 @@ async function loadUsersData() {
 
         // Nascondi loading
         if (mainLoading) mainLoading.style.display = 'none';
-        if (usersGrid) usersGrid.style.display = 'grid';
+        if (usersGrid) {
+            usersGrid.style.display = 'grid';
+            // Animate cards entrance with IntersectionObserver
+            setTimeout(() => {
+                if (animationController) {
+                    animationController.observeAll('.user-card');
+                }
+            }, 100);
+        }
     } catch (error) {
         console.error('Errore caricamento dati:', error);
         if (mainLoading) mainLoading.style.display = 'none';
@@ -139,6 +160,11 @@ function renderUserCards() {
         `;
 
         card.addEventListener('click', () => {
+            // Celebrate with particles
+            ParticleEffects.burst(
+                card.getBoundingClientRect().left + card.offsetWidth / 2,
+                card.getBoundingClientRect().top + card.offsetHeight / 2
+            );
             showUserGallery(userName, userData);
         });
 
@@ -157,12 +183,16 @@ function showUserGallery(userName, userData) {
     galleryPhotos.innerHTML = '';
 
     // Mostra messaggio se presente
-    if (userData.message) {
+    if (userData.message && userData.message.trim()) {
         galleryMessage.textContent = `"${userData.message}"`;
-        galleryMessage.style.display = 'block';
+        galleryMessage.style.opacity = '1';
+        galleryMessage.style.fontStyle = 'normal';
     } else {
-        galleryMessage.style.display = 'none';
+        galleryMessage.textContent = 'Nessun messaggio';
+        galleryMessage.style.opacity = '0.7';
+        galleryMessage.style.fontStyle = 'italic';
     }
+    galleryMessage.style.display = 'block';
 
     // Mostra foto e video
     if (userData.photos && userData.photos.length > 0) {
@@ -179,17 +209,35 @@ function showUserGallery(userName, userData) {
                     <img src="${media.url}" alt="Foto ${index + 1}" loading="lazy">
                 `;
             }
+
+            // Add click handler to open lightbox
+            mediaItem.addEventListener('click', () => {
+                if (lightboxManager) {
+                    const mediaItems = userData.photos.map(p => ({
+                        url: p.url,
+                        isVideo: p.isVideo
+                    }));
+                    lightboxManager.open(mediaItems, index);
+                    ParticleEffects.burst(window.innerWidth / 2, window.innerHeight / 2);
+                }
+            });
+
             galleryPhotos.appendChild(mediaItem);
         });
     }
 
     galleryModal.style.display = 'flex';
+    galleryModal.classList.add('show');
+
+    // Celebrate opening gallery
+    ParticleEffects.hearts();
 }
 
 // Chiudi galleria
 function closeGallery() {
     const galleryModal = document.getElementById('galleryModal');
     galleryModal.style.display = 'none';
+    galleryModal.classList.remove('show');
 }
 
 // Setup musica di sottofondo
@@ -287,9 +335,12 @@ function startFullSlideshow() {
     });
 
     if (slideshowData.length === 0) {
-        alert('Nessuna foto o video disponibile per lo slideshow!');
+        Toast.error('Nessuna foto o video disponibile per lo slideshow!');
         return;
     }
+
+    // Celebrate starting slideshow
+    ParticleEffects.stars();
 
     // Mostra slideshow modal
     const slideshowModal = document.getElementById('slideshowModal');
@@ -445,6 +496,9 @@ function displaySlide(index) {
         slideshowUserName.textContent = '';
         slideshowMessage.textContent = '';
 
+        // Celebrate intro slide with confetti
+        ParticleEffects.celebrate();
+
         // Pause autoplay for intro slides - user can manually advance
         stopSlideshowAutoPlay();
 
@@ -594,6 +648,7 @@ function setupSlideshowControls() {
     const closeSlideshowBtn = document.getElementById('closeSlideshowBtn');
     const speedSlider = document.getElementById('speedSlider');
     const speedValue = document.getElementById('speedValue');
+    const slideshowContainer = document.querySelector('.slideshow-container');
 
     if (playPauseBtn) {
         playPauseBtn.addEventListener('click', toggleSlideshow);
@@ -618,6 +673,21 @@ function setupSlideshowControls() {
                 currentSlideshow.currentIndex = 0;
             }
             displaySlide(currentSlideshow.currentIndex);
+        });
+    }
+
+    // Add swipe gestures to slideshow
+    if (slideshowContainer) {
+        new SwipeGestureHandler(slideshowContainer, {
+            onSwipeLeft: () => {
+                if (nextBtn) nextBtn.click();
+            },
+            onSwipeRight: () => {
+                if (prevBtn) prevBtn.click();
+            },
+            onSwipeDown: () => {
+                closeSlideshow();
+            }
         });
     }
 
@@ -733,3 +803,404 @@ window.addEventListener('click', function(e) {
         closeSlideshow();
     }
 });
+
+// ============================================
+// NEW INTERACTIVE FEATURES
+// ============================================
+
+// Particle Effects Manager
+class ParticleEffects {
+    static celebrate() {
+        if (typeof confetti !== 'undefined') {
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+        }
+    }
+
+    static burst(x, y) {
+        if (typeof confetti !== 'undefined') {
+            confetti({
+                particleCount: 50,
+                angle: 60,
+                spread: 55,
+                origin: { x: x / window.innerWidth, y: y / window.innerHeight },
+                colors: ['#667eea', '#764ba2', '#ff6b6b', '#ffd93d']
+            });
+            confetti({
+                particleCount: 50,
+                angle: 120,
+                spread: 55,
+                origin: { x: x / window.innerWidth, y: y / window.innerHeight },
+                colors: ['#667eea', '#764ba2', '#ff6b6b', '#ffd93d']
+            });
+        }
+    }
+
+    static hearts() {
+        if (typeof confetti !== 'undefined') {
+            const heart = '❤️';
+            const emoji = heart;
+            confetti({
+                emoji: [emoji],
+                emojiSize: 50,
+                particleCount: 30,
+                spread: 60,
+                origin: { y: 0.6 }
+            });
+        }
+    }
+
+    static stars() {
+        if (typeof confetti !== 'undefined') {
+            const star = '⭐';
+            confetti({
+                emoji: [star],
+                emojiSize: 50,
+                particleCount: 30,
+                spread: 60,
+                origin: { y: 0.6 }
+            });
+        }
+    }
+}
+
+// Lightbox Manager with Zoom and Pan
+class LightboxManager {
+    constructor() {
+        this.currentIndex = 0;
+        this.mediaItems = [];
+        this.zoomLevel = 1;
+        this.panX = 0;
+        this.panY = 0;
+        this.isDragging = false;
+        this.startX = 0;
+        this.startY = 0;
+        this.modal = null;
+        this.content = null;
+        this.image = null;
+        this.video = null;
+        this.init();
+    }
+
+    init() {
+        this.modal = document.getElementById('lightboxModal');
+        this.content = this.modal.querySelector('.lightbox-content');
+        this.image = document.getElementById('lightboxImage');
+        this.video = document.getElementById('lightboxVideo');
+        const counter = this.modal.querySelector('.lightbox-counter');
+        const zoomText = this.modal.querySelector('.lightbox-zoom-text');
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (this.modal.style.display === 'flex' || this.modal.classList.contains('show')) {
+                if (e.key === 'Escape') this.close();
+                if (e.key === 'ArrowLeft') this.prev();
+                if (e.key === 'ArrowRight') this.next();
+                if (e.key === '+' || e.key === '=') this.zoomIn();
+                if (e.key === '-') this.zoomOut();
+                if (e.key === '0') this.resetZoom();
+            }
+        });
+
+        // Mouse wheel zoom
+        this.content.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const delta = e.deltaY > 0 ? -0.1 : 0.1;
+            this.zoomLevel = Math.max(0.5, Math.min(5, this.zoomLevel + delta));
+            this.applyTransform();
+            if (zoomText) zoomText.textContent = Math.round(this.zoomLevel * 100) + '%';
+        });
+
+        // Pan with mouse drag
+        this.content.addEventListener('mousedown', (e) => {
+            if (this.zoomLevel > 1) {
+                this.isDragging = true;
+                this.startX = e.clientX - this.panX;
+                this.startY = e.clientY - this.panY;
+            }
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (this.isDragging && this.zoomLevel > 1) {
+                this.panX = e.clientX - this.startX;
+                this.panY = e.clientY - this.startY;
+                this.applyTransform();
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            this.isDragging = false;
+        });
+
+        // Touch gestures
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchStartTime = 0;
+
+        this.content.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+            touchStartTime = Date.now();
+            if (this.zoomLevel > 1) {
+                this.isDragging = true;
+                this.startX = touchStartX - this.panX;
+                this.startY = touchStartY - this.panY;
+            }
+        });
+
+        this.content.addEventListener('touchmove', (e) => {
+            if (this.isDragging && this.zoomLevel > 1) {
+                e.preventDefault();
+                this.panX = e.touches[0].clientX - this.startX;
+                this.panY = e.touches[0].clientY - this.startY;
+                this.applyTransform();
+            }
+        });
+
+        this.content.addEventListener('touchend', (e) => {
+            this.isDragging = false;
+            const touchEndX = e.changedTouches[0].clientX;
+            const touchEndY = e.changedTouches[0].clientY;
+            const touchDuration = Date.now() - touchStartTime;
+            const deltaX = touchEndX - touchStartX;
+            const deltaY = touchEndY - touchStartY;
+            const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+            // Swipe detection
+            if (touchDuration < 300 && distance > 50) {
+                if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                    if (deltaX > 0) {
+                        this.prev();
+                    } else {
+                        this.next();
+                    }
+                } else if (deltaY > 50) {
+                    this.close();
+                }
+            }
+        });
+    }
+
+    open(mediaItems, startIndex = 0) {
+        this.mediaItems = mediaItems;
+        this.currentIndex = startIndex;
+        this.zoomLevel = 1;
+        this.panX = 0;
+        this.panY = 0;
+        this.showMedia();
+        this.modal.style.display = 'flex';
+        this.modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+        this.updateCounter();
+    }
+
+    close() {
+        this.modal.style.display = 'none';
+        this.modal.classList.remove('show');
+        document.body.style.overflow = '';
+        this.zoomLevel = 1;
+        this.panX = 0;
+        this.panY = 0;
+        this.applyTransform();
+    }
+
+    showMedia() {
+        const item = this.mediaItems[this.currentIndex];
+        if (!item) return;
+
+        if (item.isVideo) {
+            this.image.style.display = 'none';
+            this.video.style.display = 'block';
+            this.video.src = item.url;
+            this.video.load();
+        } else {
+            this.video.style.display = 'none';
+            this.image.style.display = 'block';
+            this.image.src = item.url;
+        }
+        this.resetZoom();
+        this.updateCounter();
+    }
+
+    next() {
+        if (this.currentIndex < this.mediaItems.length - 1) {
+            this.currentIndex++;
+        } else {
+            this.currentIndex = 0;
+        }
+        this.showMedia();
+        ParticleEffects.burst(window.innerWidth / 2, window.innerHeight / 2);
+    }
+
+    prev() {
+        if (this.currentIndex > 0) {
+            this.currentIndex--;
+        } else {
+            this.currentIndex = this.mediaItems.length - 1;
+        }
+        this.showMedia();
+        ParticleEffects.burst(window.innerWidth / 2, window.innerHeight / 2);
+    }
+
+    zoomIn() {
+        this.zoomLevel = Math.min(5, this.zoomLevel + 0.25);
+        this.applyTransform();
+        const zoomText = this.modal.querySelector('.lightbox-zoom-text');
+        if (zoomText) zoomText.textContent = Math.round(this.zoomLevel * 100) + '%';
+    }
+
+    zoomOut() {
+        this.zoomLevel = Math.max(0.5, this.zoomLevel - 0.25);
+        this.applyTransform();
+        const zoomText = this.modal.querySelector('.lightbox-zoom-text');
+        if (zoomText) zoomText.textContent = Math.round(this.zoomLevel * 100) + '%';
+    }
+
+    resetZoom() {
+        this.zoomLevel = 1;
+        this.panX = 0;
+        this.panY = 0;
+        this.applyTransform();
+        const zoomText = this.modal.querySelector('.lightbox-zoom-text');
+        if (zoomText) zoomText.textContent = '100%';
+    }
+
+    applyTransform() {
+        const transform = `scale(${this.zoomLevel}) translate(${this.panX / this.zoomLevel}px, ${this.panY / this.zoomLevel}px)`;
+        if (this.image.style.display !== 'none') {
+            this.image.style.transform = transform;
+        }
+        if (this.video.style.display !== 'none') {
+            this.video.style.transform = transform;
+        }
+    }
+
+    updateCounter() {
+        const counter = this.modal.querySelector('.lightbox-counter');
+        if (counter) {
+            counter.textContent = `${this.currentIndex + 1} / ${this.mediaItems.length}`;
+        }
+    }
+}
+
+// Swipe Gesture Handler
+class SwipeGestureHandler {
+    constructor(element, callbacks) {
+        this.element = element;
+        this.callbacks = callbacks;
+        this.startX = 0;
+        this.startY = 0;
+        this.startTime = 0;
+        this.threshold = 50;
+        this.restraint = 100;
+        this.allowedTime = 300;
+        this.init();
+    }
+
+    init() {
+        this.element.addEventListener('touchstart', (e) => {
+            this.startX = e.touches[0].clientX;
+            this.startY = e.touches[0].clientY;
+            this.startTime = Date.now();
+        });
+
+        this.element.addEventListener('touchend', (e) => {
+            const endX = e.changedTouches[0].clientX;
+            const endY = e.changedTouches[0].clientY;
+            const endTime = Date.now();
+            const deltaX = endX - this.startX;
+            const deltaY = endY - this.startY;
+            const deltaTime = endTime - this.startTime;
+
+            if (deltaTime <= this.allowedTime) {
+                if (Math.abs(deltaX) >= this.threshold && Math.abs(deltaY) <= this.restraint) {
+                    if (deltaX > 0 && this.callbacks.onSwipeRight) {
+                        this.callbacks.onSwipeRight();
+                    } else if (deltaX < 0 && this.callbacks.onSwipeLeft) {
+                        this.callbacks.onSwipeLeft();
+                    }
+                } else if (Math.abs(deltaY) >= this.threshold && Math.abs(deltaX) <= this.restraint) {
+                    if (deltaY > 0 && this.callbacks.onSwipeDown) {
+                        this.callbacks.onSwipeDown();
+                    } else if (deltaY < 0 && this.callbacks.onSwipeUp) {
+                        this.callbacks.onSwipeUp();
+                    }
+                }
+            }
+        });
+    }
+}
+
+// Animation Controller with Intersection Observer
+class AnimationController {
+    constructor() {
+        this.observer = null;
+        this.init();
+    }
+
+    init() {
+        if ('IntersectionObserver' in window) {
+            this.observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('fade-in-up');
+                        // Keep observing to allow re-animation if needed
+                    }
+                });
+            }, {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            });
+        }
+    }
+
+    observe(element) {
+        if (this.observer && element) {
+            this.observer.observe(element);
+        }
+    }
+
+    observeAll(selector) {
+        const elements = document.querySelectorAll(selector);
+        elements.forEach(el => this.observe(el));
+    }
+}
+
+// Toast Notification System
+class Toast {
+    static show(message, type = 'info', duration = 3000) {
+        const container = document.getElementById('toastContainer');
+        if (!container) return;
+
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.textContent = message;
+        container.appendChild(toast);
+
+        setTimeout(() => {
+            toast.classList.add('fade-out');
+            setTimeout(() => {
+                toast.remove();
+            }, 300);
+        }, duration);
+    }
+
+    static success(message, duration = 3000) {
+        this.show(message, 'success', duration);
+    }
+
+    static error(message, duration = 3000) {
+        this.show(message, 'error', duration);
+    }
+
+    static info(message, duration = 3000) {
+        this.show(message, 'info', duration);
+    }
+}
+
+// Initialize global instances (will be set in DOMContentLoaded)
+let lightboxManager;
+let animationController;

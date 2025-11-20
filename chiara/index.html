@@ -43,6 +43,27 @@
         </div>
     </div>
 
+    <!-- Lightbox Modal -->
+    <div id="lightboxModal" class="lightbox-modal">
+        <button class="lightbox-close" onclick="lightboxManager.close()">×</button>
+        <button class="lightbox-nav lightbox-prev" onclick="lightboxManager.prev()">‹</button>
+        <button class="lightbox-nav lightbox-next" onclick="lightboxManager.next()">›</button>
+        <div class="lightbox-content">
+            <img id="lightboxImage" src="" alt="">
+            <video id="lightboxVideo" src="" controls style="display: none;"></video>
+        </div>
+        <div class="lightbox-controls">
+            <button class="lightbox-btn" onclick="lightboxManager.zoomOut()" title="Zoom Out">−</button>
+            <span class="lightbox-zoom-text">100%</span>
+            <button class="lightbox-btn" onclick="lightboxManager.zoomIn()" title="Zoom In">+</button>
+            <button class="lightbox-btn" onclick="lightboxManager.resetZoom()" title="Reset">⌂</button>
+        </div>
+        <div class="lightbox-counter"></div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
     <!-- Slideshow Modal -->
     <div id="slideshowModal" class="modal">
         <div class="modal-content">
@@ -95,6 +116,9 @@
     <audio id="backgroundMusic" loop>
         <source src="assets/music/background.mp3" type="audio/mpeg">
     </audio>
+
+    <!-- Canvas Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>

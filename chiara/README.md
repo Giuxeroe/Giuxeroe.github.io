@@ -47,6 +47,45 @@ service firebase.storage {
 
 **Nota**: L'avviso di sicurezza di Firebase è normale. Le regole devono essere pubbliche per permettere agli amici di caricare foto senza autenticazione. Se dopo il compleanno vuoi bloccare nuovi upload, cambia `allow read, write: if true;` in `allow read: if true; allow write: if false;`
 
+### 3.5. Configura CORS per i messaggi (IMPORTANTE)
+
+Per permettere la lettura dei file `message.txt` da GitHub Pages, devi configurare CORS su Firebase Storage usando **Google Cloud Shell** (il modo più semplice - tutto già installato):
+
+#### Usando Google Cloud Shell (CONSIGLIATO)
+
+1. Vai su [Google Cloud Console](https://console.cloud.google.com/)
+2. Seleziona il tuo progetto Firebase (es: "compleanno-chiara")
+3. **Apri Cloud Shell**: Clicca sull'icona del terminale in alto a destra (icona `>_`)
+   - Cloud Shell si apre in basso nella pagina
+   - È già autenticato e ha gsutil pre-installato!
+
+4. **Crea il file CORS** nel Cloud Shell:
+   ```bash
+   cat > cors.json << 'EOF'
+   [
+     {
+       "origin": ["https://giuxeroe.github.io"],
+       "method": ["GET"],
+       "maxAgeSeconds": 3600
+     }
+   ]
+   EOF
+   ```
+
+5. **Applica la configurazione CORS**:
+   ```bash
+   gsutil cors set cors.json gs://compleanno-chiara.firebasestorage.app
+   ```
+   ⚠️ **Sostituisci** `compleanno-chiara.firebasestorage.app` con il tuo storage bucket se diverso
+
+6. **Verifica che sia applicato**:
+   ```bash
+   gsutil cors get gs://compleanno-chiara.firebasestorage.app
+   ```
+   Dovresti vedere il JSON con la configurazione CORS.
+
+**Nota**: Se il tuo dominio GitHub Pages è diverso da `https://giuxeroe.github.io`, modifica l'URL nel file JSON al passo 4.
+
 ### 4. Ottieni le credenziali Firebase
 
 1. Vai su **Project Settings** (icona ingranaggio in alto a sinistra)
@@ -180,6 +219,13 @@ Il sito supporta sia foto che video:
 **Il messaggio non viene salvato?**
 - Verifica che le regole Storage permettano di salvare `message.txt`
 - Controlla che il messaggio non superi 10KB
+
+**I messaggi mostrano "Nessun messaggio" anche se esistono?**
+- Questo è un problema di CORS (Cross-Origin Resource Sharing)
+- Configura CORS per Firebase Storage usando il file `cors.json` nella root del progetto:
+  1. Installa Google Cloud SDK se non l'hai già fatto
+  2. Esegui: `gsutil cors set cors.json gs://compleanno-chiara.firebasestorage.app`
+  3. Sostituisci `compleanno-chiara.firebasestorage.app` con il tuo storage bucket se diverso
 
 **I video non si caricano?**
 - Verifica che il video non superi 50MB
