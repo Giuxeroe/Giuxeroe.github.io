@@ -1,239 +1,72 @@
-<!-- a68ff52c-4ebc-40fd-b48d-a899bfc27a7c 334fd5b7-b241-48a1-9b43-b2c88acd489d -->
-# Fix Loading and Preloading Issues
+<!-- a68ff52c-4ebc-40fd-b48d-a899bfc27a7c 1dff7dfe-3749-4a40-8614-c6100d1ac857 -->
+# Fix Slideshow Layout Issues
 
-## Problems Identified
+## Problem Analysis
 
-1. **Initial page load**: No loading indicator while fetching photos from Firebase (takes ~30 seconds)
-2. **Slideshow preloading broken**: Images are preloaded but NOT reused - `displaySlide()` creates new `<img>` elements, causing the browser to fetch again
+1. **Vertical photos not centered**: Images need proper horizontal centering
+2. **Layout shifts cover controls**: When photos are large, the modal content shifts and dark overlay covers buttons/slider
+3. **Loading text invisible**: White text on white background in main page loading
 
-## Solutions
+## Changes Required
 
-### 1. Add Loading Indicator for Initial Data Load
+### 1. Fix Vertical Photo Centering (`chiara/assets/css/style.css`)
 
-**Update HTML** (`chiara/index.html`):
+Update `.slideshow-container` to ensure proper centering:
 
-Add loading indicator before the users grid (around line 23, before `<div id="usersGrid">`):
+- Add `align-items: center` and `justify-content: center` to container
+- Ensure images don't have fixed width that prevents centering
 
-```html
-<div id="mainLoading" style="display: flex;">
-    <div class="loading-spinner"></div>
-    <p>Caricamento gallerie...</p>
-</div>
-<div id="usersGrid" class="users-grid" style="display: none;"></div>
-```
+### 2. Fix Layout Structure to Prevent Controls Overlay (`chiara/assets/css/style.css`)
 
-**Update JavaScript** (`chiara/assets/js/main.js`):
+Restructure the slideshow modal layout:
 
-In `loadUsersData()` function, show/hide loading at start and end (around lines 28 and 77):
+- Change `#slideshowModal .modal-content` to use flexbox with `flex-direction: column`
+- Make `.slideshow-container` flexible to take available space
+- Ensure `.slideshow-controls` and `.person-controls` stay at bottom with higher z-index
+- Remove padding from modal-content that might cause overflow
+- Adjust slideshow-container height to account for controls space
 
-```javascript
-async function loadUsersData() {
-    const mainLoading = document.getElementById('mainLoading');
-    const usersGrid = document.getElementById('usersGrid');
-    
-    // Mostra loading
-    if (mainLoading) mainLoading.style.display = 'flex';
-    if (usersGrid) usersGrid.style.display = 'none';
-    
-    try {
-        // ... existing code ...
-        
-        renderUserCards();
-        
-        // Nascondi loading
-        if (mainLoading) mainLoading.style.display = 'none';
-        if (usersGrid) usersGrid.style.display = 'grid';
-    } catch (error) {
-        // ... existing error handling ...
-        if (mainLoading) mainLoading.style.display = 'none';
-        if (usersGrid) usersGrid.style.display = 'block';
-    }
-}
-```
-
-**Update CSS** (`chiara/assets/css/style.css`):
-
-Add styles for main loading indicator (after the hero section styles):
+Current structure that needs fixing:
 
 ```css
-/* Loading indicator per pagina principale */
-#mainLoading {
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 300px;
-    color: white;
+#slideshowModal .modal-content {
+    max-width: 95%;
+    max-height: 95vh;
+    padding: 0;
 }
 
-#mainLoading p {
-    color: white;
-    font-size: 1.2rem;
-    margin-top: 20px;
-}
-
-#mainLoading .loading-spinner {
-    border: 4px solid rgba(255,255,255,0.3);
-    border-top: 4px solid white;
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    animation: spin 1s linear infinite;
+.slideshow-container {
+    height: 80vh;  /* This can cause overflow */
 }
 ```
 
-### 2. Fix Slideshow Preloading - Use Cached Images
+### 3. Fix Loading Indicator Visibility (`chiara/assets/css/style.css`)
 
-**Problem**: We preload images but create new `<img>` elements in `displaySlide()`, so browser fetches again.
+Change `#mainLoading` styling:
 
-**Solution**: Store preloaded Image objects in `currentSlideshow` and reuse them.
+- Add semi-transparent dark background
+- Or change text to darker color with text shadow
+- Or add backdrop behind the text
 
-**Update `preloadImages()` function** (around line 190):
+### 4. Update JavaScript Image Styling (`chiara/assets/js/main.js`)
 
-Modify to return a map of preloaded Image objects:
+In `displaySlide()` function, ensure images don't have conflicting width styles that prevent centering. Currently sets:
 
 ```javascript
-function preloadImages(slideshowData) {
-    return new Promise((resolve, reject) => {
-        const imagesToLoad = slideshowData.filter(item => !item.isVideo);
-        
-        if (imagesToLoad.length === 0) {
-            resolve({});
-            return;
-        }
-
-        let loadedCount = 0;
-        const totalImages = imagesToLoad.length;
-        const loadingProgressBar = document.getElementById('loadingProgressBar');
-        const loadingProgressText = document.getElementById('loadingProgressText');
-        const imageCache = {}; // Store preloaded images
-
-        imagesToLoad.forEach((item) => {
-            const img = new Image();
-            
-            img.onload = () => {
-                loadedCount++;
-                imageCache[item.url] = img; // Cache the loaded image
-                
-                const progress = Math.round((loadedCount / totalImages) * 100);
-                
-                if (loadingProgressBar) {
-                    loadingProgressBar.style.width = progress + '%';
-                }
-                if (loadingProgressText) {
-                    loadingProgressText.textContent = progress + '%';
-                }
-                
-                if (loadedCount === totalImages) {
-                    resolve(imageCache);
-                }
-            };
-            
-            img.onerror = () => {
-                loadedCount++;
-                console.warn('Errore caricamento immagine:', item.url);
-                
-                if (loadedCount === totalImages) {
-                    resolve(imageCache);
-                }
-            };
-            
-            img.src = item.url;
-        });
-    });
-}
+imgElement.style.maxWidth = '100%';
+imgElement.style.maxHeight = '70vh';
 ```
 
-**Update `startFullSlideshow()` to store image cache** (around line 289):
+These are fine, but ensure no width is set that would prevent centering.
 
-```javascript
-// Precarica tutte le immagini
-preloadImages(slideshowData).then((imageCache) => {
-    // Nascondi loading, mostra slideshow
-    if (slideshowLoading) {
-        slideshowLoading.style.display = 'none';
-    }
-    if (slideshowContainer) {
-        slideshowContainer.style.display = 'block';
-    }
-    if (slideshowControls) {
-        slideshowControls.style.display = 'flex';
-    }
-    if (personControls) {
-        personControls.style.display = 'flex';
-    }
+## Files to Modify
 
-    // Avvia slideshow with cached images
-    currentSlideshow = {
-        photos: slideshowData,
-        currentIndex: 0,
-        isPlaying: true,
-        intervalId: null,
-        videoTimeoutId: null,
-        imageCache: imageCache  // Store the cached images
-    };
-
-    displaySlide(currentSlideshow.currentIndex);
-    startSlideshowAutoPlay();
-
-    // Avvia musica se disponibile
-    if (backgroundMusic) {
-        backgroundMusic.play().catch(e => {
-            console.log('Autoplay bloccato dal browser:', e);
-        });
-    }
-});
-```
-
-**Update `displaySlide()` to use cached images** (around line 395-410):
-
-Replace the image creation part:
-
-```javascript
-if (slide.isVideo) {
-    // ... existing video code ...
-} else {
-    // Use cached image if available, otherwise create new one
-    let imgElement;
-    
-    if (currentSlideshow.imageCache && currentSlideshow.imageCache[slide.url]) {
-        // Clone the cached image
-        imgElement = currentSlideshow.imageCache[slide.url].cloneNode(true);
-        imgElement.id = 'slideshowImage';
-    } else {
-        // Fallback: create new image
-        imgElement = document.createElement('img');
-        imgElement.id = 'slideshowImage';
-        imgElement.src = slide.url;
-    }
-    
-    imgElement.alt = 'Slideshow';
-    imgElement.style.maxWidth = '100%';
-    imgElement.style.maxHeight = '70vh';
-    imgElement.style.objectFit = 'contain';
-    imgElement.style.borderRadius = '10px';
-
-    // Inserisci immagine prima dell'info
-    const infoDiv = slideshowContainer.querySelector('.slideshow-info');
-    slideshowContainer.insertBefore(imgElement, infoDiv);
-
-    // Riprendi autoplay normale per le foto
-    stopSlideshowAutoPlay();
-    if (currentSlideshow.isPlaying) {
-        startSlideshowAutoPlay();
-    }
-}
-```
-
-## Result
-
-1. Users see a loading spinner while photos load initially
-2. Slideshow has ZERO delay between photos - cached images are reused instantly
-3. Professional, smooth user experience throughout
+1. `chiara/assets/css/style.css` - Fix all three CSS issues
+2. Verify `chiara/assets/js/main.js` - Check if image creation needs adjustment (likely no changes needed)
 
 ### To-dos
 
-- [ ] Add loading indicator HTML to main page
-- [ ] Update loadUsersData to show/hide loading
-- [ ] Add CSS styles for main loading indicator
-- [ ] Update preloadImages to return cached Image objects
-- [ ] Update displaySlide to use cached images
+- [ ] Update #mainLoading styles for better visibility against white background
+- [ ] Restructure slideshow modal layout to prevent controls overlay
+- [ ] Ensure vertical photos are properly centered in slideshow
+- [ ] Verify displaySlide image creation doesn't conflict with centering

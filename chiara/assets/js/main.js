@@ -417,9 +417,12 @@ function displaySlide(index) {
         videoElement.autoplay = true;
         videoElement.controls = false;
         videoElement.style.maxWidth = '100%';
-        videoElement.style.maxHeight = '70vh';
+        videoElement.style.maxHeight = '100%';
+        videoElement.style.width = 'auto';
+        videoElement.style.height = 'auto';
         videoElement.style.objectFit = 'contain';
         videoElement.style.borderRadius = '10px';
+        videoElement.style.margin = 'auto';
 
         // Inserisci video prima dell'info
         const infoDiv = slideshowContainer.querySelector('.slideshow-info');
@@ -449,9 +452,12 @@ function displaySlide(index) {
 
         imgElement.alt = 'Slideshow';
         imgElement.style.maxWidth = '100%';
-        imgElement.style.maxHeight = '70vh';
+        imgElement.style.maxHeight = '100%';
+        imgElement.style.width = 'auto';
+        imgElement.style.height = 'auto';
         imgElement.style.objectFit = 'contain';
         imgElement.style.borderRadius = '10px';
+        imgElement.style.margin = 'auto';
 
         // Inserisci immagine prima dell'info
         const infoDiv = slideshowContainer.querySelector('.slideshow-info');
