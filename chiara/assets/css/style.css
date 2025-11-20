@@ -273,14 +273,15 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    padding-right: 300px; /* Reserve space for floating panel (280px + 20px margin) */
     background: #000;
     position: relative;
 }
 
 #slideshowImage,
 #slideshowVideo {
-    max-width: 100%;
-    max-height: 100%;
+    max-width: calc(100vw - 300px);
+    max-height: 100vh;
     width: auto;
     height: auto;
     object-fit: contain;

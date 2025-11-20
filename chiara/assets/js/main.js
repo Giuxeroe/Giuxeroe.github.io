@@ -434,13 +434,17 @@ function displaySlide(index) {
         // Pause autoplay for intro slides - user can manually advance
         stopSlideshowAutoPlay();
 
-        // Auto-advance after 5 seconds if playing
+        // Auto-advance after 3 seconds if playing
         if (currentSlideshow.isPlaying) {
             setTimeout(() => {
                 if (currentSlideshow && currentSlideshow.currentIndex === index) {
-                    nextSlide();
+                    currentSlideshow.currentIndex++;
+                    if (currentSlideshow.currentIndex >= currentSlideshow.photos.length) {
+                        currentSlideshow.currentIndex = 0; // Loop
+                    }
+                    displaySlide(currentSlideshow.currentIndex);
                 }
-            }, 5000);
+            }, 3000);
         }
 
         // Update progress
