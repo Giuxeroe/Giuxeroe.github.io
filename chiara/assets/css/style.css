@@ -256,30 +256,26 @@ body {
     color: white;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
 }
 
 .slideshow-container {
     position: relative;
     width: 100%;
-    flex: 1 1 auto;
-    min-height: 0;
+    height: 70vh;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    overflow: hidden;
+    background: #000;
 }
 
 #slideshowImage,
 #slideshowVideo {
-    max-width: 100%;
-    max-height: 100%;
+    max-width: 90%;
+    max-height: 60vh;
     width: auto;
     height: auto;
     object-fit: contain;
     border-radius: 10px;
-    margin: auto;
 }
 
 #slideshowVideo {
@@ -289,12 +285,37 @@ body {
 
 .slideshow-info {
     text-align: center;
-    padding: 20px;
-    background: rgba(0,0,0,0.7);
+    padding: 15px 20px;
+    background: rgba(0,0,0,0.9);
     width: 100%;
-    flex-shrink: 0;
     position: relative;
-    z-index: 10;
+    border-top: 1px solid rgba(255,255,255,0.2);
+}
+
+/* Intro slide styling */
+.slideshow-intro {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    text-align: center;
+    height: 100%;
+    width: 100%;
+}
+
+.slideshow-intro h2 {
+    font-size: 2.5rem;
+    margin-bottom: 30px;
+    color: #ff6b6b;
+}
+
+.slideshow-intro p {
+    font-size: 1.5rem;
+    line-height: 1.8;
+    max-width: 800px;
+    font-style: italic;
+    margin: 0 auto;
 }
 
 #slideshowUserName {

@@ -202,7 +202,7 @@ function setupBackgroundMusic() {
 // Precarica tutte le immagini prima di avviare lo slideshow
 function preloadImages(slideshowData) {
     return new Promise((resolve, reject) => {
-        const imagesToLoad = slideshowData.filter(item => !item.isVideo);
+        const imagesToLoad = slideshowData.filter(item => !item.isVideo && !item.isIntro && item.url);
 
         if (imagesToLoad.length === 0) {
             resolve({});
@@ -261,12 +261,23 @@ function startFullSlideshow() {
         if (userData.photos && userData.photos.length > 0) {
             const message = userData.message || '';
 
+            // Add intro slide first
+            slideshowData.push({
+                isIntro: true,
+                userName: userName,
+                message: message,
+                url: null,
+                isVideo: false
+            });
+
+            // Then add all photos/videos
             userData.photos.forEach(media => {
                 slideshowData.push({
                     url: media.url,
                     userName: userName,
                     message: message,
-                    isVideo: media.isVideo
+                    isVideo: media.isVideo,
+                    isIntro: false
                 });
             });
         }
@@ -338,41 +349,48 @@ function startFullSlideshow() {
     });
 }
 
-// Trova l'indice della prima slide della persona precedente/successiva
+// Trova l'indice della slide introduttiva della persona precedente/successiva
 function findPersonBoundary(currentIndex, direction) {
     if (!currentSlideshow || !currentSlideshow.photos.length) return currentIndex;
 
-    const currentPerson = currentSlideshow.photos[currentIndex].userName;
+    const currentSlide = currentSlideshow.photos[currentIndex];
+    const currentPerson = currentSlide.userName;
     let newIndex = currentIndex;
 
     if (direction === 'next') {
-        // Salta tutte le slide della persona corrente
-        while (newIndex < currentSlideshow.photos.length - 1 &&
-               currentSlideshow.photos[newIndex].userName === currentPerson) {
-            newIndex++;
+        // Trova la slide introduttiva della persona successiva
+        for (let i = currentIndex + 1; i < currentSlideshow.photos.length; i++) {
+            if (currentSlideshow.photos[i].isIntro &&
+                currentSlideshow.photos[i].userName !== currentPerson) {
+                newIndex = i;
+                break;
+            }
         }
-        // Se siamo arrivati alla fine, torna all'inizio
-        if (newIndex === currentSlideshow.photos.length - 1 &&
-            currentSlideshow.photos[newIndex].userName === currentPerson) {
-            newIndex = 0;
+        // Se non trovata, torna all'inizio (prima intro slide)
+        if (newIndex === currentIndex) {
+            for (let i = 0; i < currentSlideshow.photos.length; i++) {
+                if (currentSlideshow.photos[i].isIntro) {
+                    newIndex = i;
+                    break;
+                }
+            }
         }
     } else if (direction === 'prev') {
-        // Vai alla slide precedente
-        if (newIndex > 0) {
-            newIndex--;
-            const prevPerson = currentSlideshow.photos[newIndex].userName;
-            // Trova l'inizio di quella persona
-            while (newIndex > 0 &&
-                   currentSlideshow.photos[newIndex - 1].userName === prevPerson) {
-                newIndex--;
+        // Trova la slide introduttiva della persona precedente
+        for (let i = currentIndex - 1; i >= 0; i--) {
+            if (currentSlideshow.photos[i].isIntro &&
+                currentSlideshow.photos[i].userName !== currentPerson) {
+                newIndex = i;
+                break;
             }
-        } else {
-            // Se siamo all'inizio, vai all'ultima persona
-            newIndex = currentSlideshow.photos.length - 1;
-            const lastPerson = currentSlideshow.photos[newIndex].userName;
-            while (newIndex > 0 &&
-                   currentSlideshow.photos[newIndex - 1].userName === lastPerson) {
-                newIndex--;
+        }
+        // Se non trovata, vai all'ultima intro slide
+        if (newIndex === currentIndex) {
+            for (let i = currentSlideshow.photos.length - 1; i >= 0; i--) {
+                if (currentSlideshow.photos[i].isIntro) {
+                    newIndex = i;
+                    break;
+                }
             }
         }
     }
@@ -403,10 +421,44 @@ function displaySlide(index) {
     const slideshowMessage = document.getElementById('slideshowMessage');
     const slideshowProgress = document.getElementById('slideshowProgress');
 
-    // Rimuovi elemento precedente
-    const oldMedia = slideshowContainer.querySelector('#slideshowImage, #slideshowVideo');
+    // Rimuovi elemento precedente (media o intro)
+    const oldMedia = slideshowContainer.querySelector('#slideshowImage, #slideshowVideo, .slideshow-intro');
     if (oldMedia) {
         oldMedia.remove();
+    }
+
+    // Handle intro slides
+    if (slide.isIntro) {
+        // Show intro slide with message
+        const introDiv = document.createElement('div');
+        introDiv.className = 'slideshow-intro';
+        introDiv.innerHTML = `
+            <h2>${slide.userName}</h2>
+            ${slide.message && slide.message.trim() ? `<p>${slide.message}</p>` : '<p style="opacity: 0.5;">Nessun messaggio</p>'}
+        `;
+        slideshowContainer.appendChild(introDiv);
+
+        // Clear info section
+        slideshowUserName.textContent = '';
+        slideshowMessage.textContent = '';
+
+        // Pause autoplay for intro slides - user can manually advance
+        stopSlideshowAutoPlay();
+
+        // Auto-advance after 5 seconds if playing
+        if (currentSlideshow.isPlaying) {
+            setTimeout(() => {
+                if (currentSlideshow && currentSlideshow.currentIndex === index) {
+                    nextSlide();
+                }
+            }, 5000);
+        }
+
+        // Update progress
+        const progress = ((index + 1) / currentSlideshow.photos.length) * 100;
+        slideshowProgress.value = progress;
+
+        return;
     }
 
     if (slide.isVideo) {
@@ -416,13 +468,12 @@ function displaySlide(index) {
         videoElement.src = slide.url;
         videoElement.autoplay = true;
         videoElement.controls = false;
-        videoElement.style.maxWidth = '100%';
-        videoElement.style.maxHeight = '100%';
+        videoElement.style.maxWidth = '90%';
+        videoElement.style.maxHeight = '60vh';
         videoElement.style.width = 'auto';
         videoElement.style.height = 'auto';
         videoElement.style.objectFit = 'contain';
         videoElement.style.borderRadius = '10px';
-        videoElement.style.margin = 'auto';
 
         // Inserisci video prima dell'info
         const infoDiv = slideshowContainer.querySelector('.slideshow-info');
@@ -451,13 +502,12 @@ function displaySlide(index) {
         }
 
         imgElement.alt = 'Slideshow';
-        imgElement.style.maxWidth = '100%';
-        imgElement.style.maxHeight = '100%';
+        imgElement.style.maxWidth = '90%';
+        imgElement.style.maxHeight = '60vh';
         imgElement.style.width = 'auto';
         imgElement.style.height = 'auto';
         imgElement.style.objectFit = 'contain';
         imgElement.style.borderRadius = '10px';
-        imgElement.style.margin = 'auto';
 
         // Inserisci immagine prima dell'info
         const infoDiv = slideshowContainer.querySelector('.slideshow-info');
@@ -473,12 +523,8 @@ function displaySlide(index) {
 
     slideshowUserName.textContent = slide.isVideo ? `Video con ${slide.userName}` : `Foto con ${slide.userName}`;
 
-    // Mostra sempre il messaggio (anche se vuoto)
-    if (slide.message && slide.message.trim()) {
-        slideshowMessage.textContent = `"${slide.message}"`;
-    } else {
-        slideshowMessage.textContent = ''; // Nessun messaggio
-    }
+    // Don't show message on regular slides (only on intro slides)
+    slideshowMessage.textContent = '';
     slideshowMessage.style.display = 'block';
 
     // Aggiorna progress bar
