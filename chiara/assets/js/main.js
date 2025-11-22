@@ -147,13 +147,6 @@ async function loadUsersData() {
         // Nascondi loading dopo che tutte le cartelle sono state processate
         if (mainLoading) mainLoading.style.display = 'none';
 
-        // Avvia caricamento URL in background (non-blocking)
-        fetchAllUserUrls().then(() => {
-            console.log('✅ URL foto/video precaricati');
-        }).catch(err => {
-            console.warn('⚠️ Errore precaricamento URL:', err);
-        });
-
         // Animate cards entrance with IntersectionObserver
         if (usersGrid && Object.keys(allUsersData).length > 0) {
             setTimeout(() => {
@@ -488,24 +481,15 @@ async function startFullSlideshow() {
 
     // Update loading text
     const loadingText = slideshowLoading?.querySelector('p');
+    if (loadingText) {
+        loadingText.textContent = 'Caricamento URL foto e video...';
+    }
 
     try {
-        // Check if URLs are already loaded
-        const needsUrlFetch = Object.keys(allUsersData).some(
-            userName => !allUsersData[userName].urlsLoaded &&
-                       allUsersData[userName].photos &&
-                       allUsersData[userName].photos.length > 0
-        );
+        // Fetch URLs on-demand if needed
+        await fetchAllUserUrls();
 
-        if (needsUrlFetch) {
-            if (loadingText) {
-                loadingText.textContent = 'Caricamento URL foto e video...';
-            }
-            // Fetch URLs on-demand if needed
-            await fetchAllUserUrls();
-        }
-
-        // Always show image preloading step
+        // Update loading text for image preloading
         if (loadingText) {
             loadingText.textContent = 'Caricamento foto e video...';
         }
