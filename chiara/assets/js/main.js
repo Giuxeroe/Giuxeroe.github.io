@@ -14,6 +14,18 @@ function isVideo(fileName) {
     return videoExtensions.some(ext => lowerName.endsWith(ext));
 }
 
+// Helper: inizializza video di caricamento
+function initLoadingVideo(container) {
+    if (!container) return;
+    const video = container.querySelector('.loading-video');
+    if (video) {
+        video.currentTime = 0;
+        video.play().catch(e => {
+            console.log('Autoplay video bloccato:', e);
+        });
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize interactive features first
     lightboxManager = new LightboxManager();
@@ -23,6 +35,12 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(() => {
         ParticleEffects.celebrate();
     }, 500);
+
+    // Inizializza video di caricamento principale
+    const mainLoading = document.getElementById('mainLoading');
+    if (mainLoading && mainLoading.style.display !== 'none') {
+        initLoadingVideo(mainLoading);
+    }
 
     // Carica dati utenti da Storage
     loadUsersData();
@@ -56,7 +74,10 @@ async function loadUsersData() {
     const usersGrid = document.getElementById('usersGrid');
 
     // Mostra loading iniziale
-    if (mainLoading) mainLoading.style.display = 'flex';
+    if (mainLoading) {
+        mainLoading.style.display = 'flex';
+        initLoadingVideo(mainLoading);
+    }
 
     // Mostra grid immediatamente per rendering progressivo
     if (usersGrid) {
@@ -70,8 +91,16 @@ async function loadUsersData() {
 
         allUsersData = {};
 
+        // Ordina le cartelle per mostrare "Giuseppe🥸" per ultima
+        const foldersArray = Array.from(folders.prefixes);
+        const giuseppeIndex = foldersArray.findIndex(f => f.name === 'Giuseppe🥸');
+        if (giuseppeIndex !== -1) {
+            const giuseppe = foldersArray.splice(giuseppeIndex, 1)[0];
+            foldersArray.push(giuseppe);
+        }
+
         // Per ogni cartella (utente) - rendering progressivo
-        for (const folder of folders.prefixes) {
+        for (const folder of foldersArray) {
             const userName = folder.name;
             const userFiles = await folder.listAll();
 
@@ -117,6 +146,13 @@ async function loadUsersData() {
 
         // Nascondi loading dopo che tutte le cartelle sono state processate
         if (mainLoading) mainLoading.style.display = 'none';
+
+        // Avvia caricamento URL in background (non-blocking)
+        fetchAllUserUrls().then(() => {
+            console.log('✅ URL foto/video precaricati');
+        }).catch(err => {
+            console.warn('⚠️ Errore precaricamento URL:', err);
+        });
 
         // Animate cards entrance with IntersectionObserver
         if (usersGrid && Object.keys(allUsersData).length > 0) {
@@ -209,11 +245,18 @@ async function showUserGallery(userName, userData) {
     // Show loading state if URLs need to be fetched
     if (!userData.urlsLoaded && userData.photos && userData.photos.length > 0) {
         galleryPhotos.innerHTML = `
-            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px;">
-                <div class="loading-spinner"></div>
-                <p style="margin-top: 20px;">Caricamento foto e video...</p>
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; gap: 20px;">
+                <video autoplay loop muted playsinline class="loading-video">
+                    <source src="assets/images/Video WhatsApp 2025-11-22 ore 16.20.14_69b654bf.mp4" type="video/mp4">
+                </video>
+                <p>Caricamento foto e video...</p>
             </div>
         `;
+        // Inizializza il video
+        const loadingContainer = galleryPhotos.querySelector('div');
+        if (loadingContainer) {
+            initLoadingVideo(loadingContainer);
+        }
     } else {
         galleryPhotos.innerHTML = '';
     }
@@ -437,6 +480,7 @@ async function startFullSlideshow() {
 
     if (slideshowLoading) {
         slideshowLoading.style.display = 'flex';
+        initLoadingVideo(slideshowLoading);
     }
     if (slideshowContainer) {
         slideshowContainer.style.display = 'none';
@@ -444,15 +488,24 @@ async function startFullSlideshow() {
 
     // Update loading text
     const loadingText = slideshowLoading?.querySelector('p');
-    if (loadingText) {
-        loadingText.textContent = 'Caricamento URL foto e video...';
-    }
 
     try {
-        // Fetch URLs on-demand if needed
-        await fetchAllUserUrls();
+        // Check if URLs are already loaded
+        const needsUrlFetch = Object.keys(allUsersData).some(
+            userName => !allUsersData[userName].urlsLoaded &&
+                       allUsersData[userName].photos &&
+                       allUsersData[userName].photos.length > 0
+        );
 
-        // Update loading text for image preloading
+        if (needsUrlFetch) {
+            if (loadingText) {
+                loadingText.textContent = 'Caricamento URL foto e video...';
+            }
+            // Fetch URLs on-demand if needed
+            await fetchAllUserUrls();
+        }
+
+        // Always show image preloading step
         if (loadingText) {
             loadingText.textContent = 'Caricamento foto e video...';
         }
@@ -531,6 +584,24 @@ async function startFullSlideshow() {
                 videoTimeoutId: null,
                 imageCache: imageCache  // Store the cached images
             };
+
+            // Sincronizza slider con i valori delle variabili
+            const speedSlider = document.getElementById('speedSlider');
+            const speedValue = document.getElementById('speedValue');
+            const sizeSlider = document.getElementById('sizeSlider');
+            const sizeValue = document.getElementById('sizeValue');
+
+            if (speedSlider && speedValue) {
+                const currentSeconds = slideshowSpeed / 1000; // Converti da ms a secondi
+                speedSlider.value = currentSeconds;
+                speedValue.textContent = `${currentSeconds}s`;
+            }
+
+            if (sizeSlider && sizeValue) {
+                const currentPercentage = Math.round(photoScale * 100); // Converti da scala a percentuale
+                sizeSlider.value = currentPercentage;
+                sizeValue.textContent = `${currentPercentage}%`;
+            }
 
             displaySlide(currentSlideshow.currentIndex);
             startSlideshowAutoPlay();

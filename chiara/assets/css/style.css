@@ -205,6 +205,13 @@ body::before {
     animation: spin 1s linear infinite;
 }
 
+.loading-video {
+    max-width: 300px;
+    max-height: 300px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
 /* Buttons */
 .btn {
     display: inline-block;

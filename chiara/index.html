@@ -20,8 +20,10 @@
     <div class="container">
         <div class="users-section">
             <h2>Le nostre copiose foto insieme</h2>
-            <div id="mainLoading" style="display: flex;">
-                <div class="loading-spinner"></div>
+            <div id="mainLoading" style="display: flex; flex-direction: column; align-items: center; gap: 20px;">
+                <video autoplay loop muted playsinline class="loading-video">
+                    <source src="assets/images/Video WhatsApp 2025-11-22 ore 16.20.14_69b654bf.mp4" type="video/mp4">
+                </video>
                 <p>Caricamento gallerie...</p>
             </div>
             <div id="usersGrid" class="users-grid" style="display: none;">
@@ -77,8 +79,10 @@
     <div id="slideshowModal" class="modal">
         <div class="modal-content">
             <button class="close-btn" onclick="closeSlideshow()">×</button>
-            <div id="slideshowLoading" style="display: none;">
-                <div class="loading-spinner"></div>
+            <div id="slideshowLoading" style="display: none; flex-direction: column; align-items: center; gap: 20px;">
+                <video autoplay loop muted playsinline class="loading-video">
+                    <source src="assets/images/Video WhatsApp 2025-11-22 ore 16.20.14_69b654bf.mp4" type="video/mp4">
+                </video>
                 <p>Caricamento foto e video...</p>
                 <div class="loading-progress">
                     <div id="loadingProgressBar"></div>
