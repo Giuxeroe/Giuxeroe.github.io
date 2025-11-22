@@ -39,9 +39,14 @@ async function loadUsersData() {
     const mainLoading = document.getElementById('mainLoading');
     const usersGrid = document.getElementById('usersGrid');
 
-    // Mostra loading
+    // Mostra loading iniziale
     if (mainLoading) mainLoading.style.display = 'flex';
-    if (usersGrid) usersGrid.style.display = 'none';
+
+    // Mostra grid immediatamente per rendering progressivo
+    if (usersGrid) {
+        usersGrid.style.display = 'grid';
+        usersGrid.innerHTML = ''; // Clear any existing content
+    }
 
     try {
         const photosRef = storage.ref('photos');
@@ -49,16 +54,17 @@ async function loadUsersData() {
 
         allUsersData = {};
 
-        // Per ogni cartella (utente)
+        // Per ogni cartella (utente) - rendering progressivo
         for (const folder of folders.prefixes) {
             const userName = folder.name;
             const userFiles = await folder.listAll();
 
             // Filtra file multimediali (escludi message.txt)
+            // Store refs instead of URLs for lazy loading
             const mediaFiles = userFiles.items
                 .filter(item => item.name !== 'message.txt')
                 .map(item => ({
-                    url: null, // Sarà popolato dopo
+                    url: null, // Will be fetched on-demand
                     name: item.name,
                     ref: item,
                     isVideo: isVideo(item.name)
@@ -81,34 +87,30 @@ async function loadUsersData() {
                 console.log(`User: ${userName}, No message file:`, e.code);
             }
 
-            // Ottieni URL per ogni file
-            for (let i = 0; i < mediaFiles.length; i++) {
-                try {
-                    mediaFiles[i].url = await mediaFiles[i].ref.getDownloadURL();
-                } catch (e) {
-                    console.error('Errore ottenendo URL per', mediaFiles[i].name, e);
-                }
-            }
-
+            // Store data with refs (URLs will be fetched lazily)
             allUsersData[userName] = {
                 name: userName,
-                photos: mediaFiles.filter(f => f.url), // Solo file con URL valido
-                message: message
+                photos: mediaFiles, // Store all files with refs, not just those with URLs
+                message: message,
+                urlsLoaded: false // Flag to track if URLs have been fetched
             };
+
+            // Render card immediately for this user (progressive rendering)
+            renderSingleUserCard(userName, allUsersData[userName]);
         }
 
-        renderUserCards();
-
-        // Nascondi loading
+        // Nascondi loading dopo che tutte le cartelle sono state processate
         if (mainLoading) mainLoading.style.display = 'none';
-        if (usersGrid) {
-            usersGrid.style.display = 'grid';
-            // Animate cards entrance with IntersectionObserver
+
+        // Animate cards entrance with IntersectionObserver
+        if (usersGrid && Object.keys(allUsersData).length > 0) {
             setTimeout(() => {
                 if (animationController) {
                     animationController.observeAll('.user-card');
                 }
             }, 100);
+        } else if (usersGrid && Object.keys(allUsersData).length === 0) {
+            usersGrid.innerHTML = '<p class="no-users">Nessuna foto caricata ancora. Condividi il link di upload con i tuoi amici!</p>';
         }
     } catch (error) {
         console.error('Errore caricamento dati:', error);
@@ -120,7 +122,47 @@ async function loadUsersData() {
     }
 }
 
-// Renderizza le card degli utenti
+// Renderizza una singola card utente (per rendering progressivo)
+function renderSingleUserCard(userName, userData) {
+    const usersGrid = document.getElementById('usersGrid');
+    if (!usersGrid) return;
+
+    const mediaCount = userData.photos ? userData.photos.length : 0;
+    const photoCount = userData.photos ? userData.photos.filter(p => !p.isVideo).length : 0;
+    const videoCount = userData.photos ? userData.photos.filter(p => p.isVideo).length : 0;
+
+    const card = document.createElement('div');
+    card.className = 'user-card';
+
+    let countText = '';
+    if (photoCount > 0 && videoCount > 0) {
+        countText = `${photoCount} ${photoCount === 1 ? 'foto' : 'foto'}, ${videoCount} ${videoCount === 1 ? 'video' : 'video'}`;
+    } else if (photoCount > 0) {
+        countText = `${photoCount} ${photoCount === 1 ? 'foto' : 'foto'}`;
+    } else if (videoCount > 0) {
+        countText = `${videoCount} ${videoCount === 1 ? 'video' : 'video'}`;
+    }
+
+    card.innerHTML = `
+        <div class="user-card-content">
+            <h3>${userName}</h3>
+            <p class="photo-count">${countText}</p>
+        </div>
+    `;
+
+    card.addEventListener('click', () => {
+        // Celebrate with particles
+        ParticleEffects.burst(
+            card.getBoundingClientRect().left + card.offsetWidth / 2,
+            card.getBoundingClientRect().top + card.offsetHeight / 2
+        );
+        showUserGallery(userName, userData);
+    });
+
+    usersGrid.appendChild(card);
+}
+
+// Renderizza tutte le card degli utenti (legacy, mantenuta per compatibilità)
 function renderUserCards() {
     const usersGrid = document.getElementById('usersGrid');
     if (!usersGrid) return;
@@ -135,52 +177,30 @@ function renderUserCards() {
     }
 
     users.forEach(userName => {
-        const userData = allUsersData[userName];
-        const mediaCount = userData.photos ? userData.photos.length : 0;
-        const photoCount = userData.photos ? userData.photos.filter(p => !p.isVideo).length : 0;
-        const videoCount = userData.photos ? userData.photos.filter(p => p.isVideo).length : 0;
-
-        const card = document.createElement('div');
-        card.className = 'user-card';
-
-        let countText = '';
-        if (photoCount > 0 && videoCount > 0) {
-            countText = `${photoCount} ${photoCount === 1 ? 'foto' : 'foto'}, ${videoCount} ${videoCount === 1 ? 'video' : 'video'}`;
-        } else if (photoCount > 0) {
-            countText = `${photoCount} ${photoCount === 1 ? 'foto' : 'foto'}`;
-        } else if (videoCount > 0) {
-            countText = `${videoCount} ${videoCount === 1 ? 'video' : 'video'}`;
-        }
-
-        card.innerHTML = `
-            <div class="user-card-content">
-                <h3>${userName}</h3>
-                <p class="photo-count">${countText}</p>
-            </div>
-        `;
-
-        card.addEventListener('click', () => {
-            // Celebrate with particles
-            ParticleEffects.burst(
-                card.getBoundingClientRect().left + card.offsetWidth / 2,
-                card.getBoundingClientRect().top + card.offsetHeight / 2
-            );
-            showUserGallery(userName, userData);
-        });
-
-        usersGrid.appendChild(card);
+        renderSingleUserCard(userName, allUsersData[userName]);
     });
 }
 
 // Mostra galleria di un singolo utente
-function showUserGallery(userName, userData) {
+async function showUserGallery(userName, userData) {
     const galleryModal = document.getElementById('galleryModal');
     const galleryTitle = document.getElementById('galleryTitle');
     const galleryPhotos = document.getElementById('galleryPhotos');
     const galleryMessage = document.getElementById('galleryMessage');
 
     galleryTitle.textContent = `Foto e video con ${userName}`;
-    galleryPhotos.innerHTML = '';
+
+    // Show loading state if URLs need to be fetched
+    if (!userData.urlsLoaded && userData.photos && userData.photos.length > 0) {
+        galleryPhotos.innerHTML = `
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px;">
+                <div class="loading-spinner"></div>
+                <p style="margin-top: 20px;">Caricamento foto e video...</p>
+            </div>
+        `;
+    } else {
+        galleryPhotos.innerHTML = '';
+    }
 
     // Mostra messaggio se presente
     if (userData.message && userData.message.trim()) {
@@ -194,9 +214,45 @@ function showUserGallery(userName, userData) {
     }
     galleryMessage.style.display = 'block';
 
+    // Show modal immediately
+    galleryModal.style.display = 'flex';
+    galleryModal.classList.add('show');
+
+    // Fetch URLs on-demand if not already loaded
+    if (!userData.urlsLoaded && userData.photos && userData.photos.length > 0) {
+        try {
+            // Fetch URLs for all media files
+            for (let i = 0; i < userData.photos.length; i++) {
+                if (!userData.photos[i].url && userData.photos[i].ref) {
+                    try {
+                        userData.photos[i].url = await userData.photos[i].ref.getDownloadURL();
+                    } catch (e) {
+                        console.error('Errore ottenendo URL per', userData.photos[i].name, e);
+                    }
+                }
+            }
+            userData.urlsLoaded = true; // Mark as loaded
+        } catch (error) {
+            console.error('Errore caricamento URL:', error);
+            galleryPhotos.innerHTML = '<p class="no-users">Errore nel caricamento delle foto. Riprova.</p>';
+            return;
+        }
+    }
+
+    // Clear loading and render photos/videos
+    galleryPhotos.innerHTML = '';
+
     // Mostra foto e video
     if (userData.photos && userData.photos.length > 0) {
-        userData.photos.forEach((media, index) => {
+        // Filter out items without URLs
+        const validPhotos = userData.photos.filter(p => p.url);
+
+        if (validPhotos.length === 0) {
+            galleryPhotos.innerHTML = '<p class="no-users">Nessuna foto disponibile.</p>';
+            return;
+        }
+
+        validPhotos.forEach((media, index) => {
             const mediaItem = document.createElement('div');
             mediaItem.className = 'gallery-photo-item';
 
@@ -213,7 +269,7 @@ function showUserGallery(userName, userData) {
             // Add click handler to open lightbox
             mediaItem.addEventListener('click', () => {
                 if (lightboxManager) {
-                    const mediaItems = userData.photos.map(p => ({
+                    const mediaItems = validPhotos.map(p => ({
                         url: p.url,
                         isVideo: p.isVideo
                     }));
@@ -225,9 +281,6 @@ function showUserGallery(userName, userData) {
             galleryPhotos.appendChild(mediaItem);
         });
     }
-
-    galleryModal.style.display = 'flex';
-    galleryModal.classList.add('show');
 
     // Celebrate opening gallery
     ParticleEffects.hearts();
@@ -301,44 +354,60 @@ function preloadImages(slideshowData) {
     });
 }
 
-// Avvia slideshow completo
-function startFullSlideshow() {
-    // Prepara array di tutte le foto e video raggruppate per persona
-    const slideshowData = [];
+// Fetch URLs for all users that haven't been loaded yet
+async function fetchAllUserUrls() {
+    const usersToLoad = Object.keys(allUsersData).filter(
+        userName => !allUsersData[userName].urlsLoaded &&
+                   allUsersData[userName].photos &&
+                   allUsersData[userName].photos.length > 0
+    );
 
-    Object.keys(allUsersData).forEach(userName => {
-        const userData = allUsersData[userName];
-
-        if (userData.photos && userData.photos.length > 0) {
-            const message = userData.message || '';
-
-            // Add intro slide first
-            slideshowData.push({
-                isIntro: true,
-                userName: userName,
-                message: message,
-                url: null,
-                isVideo: false
-            });
-
-            // Then add all photos/videos
-            userData.photos.forEach(media => {
-                slideshowData.push({
-                    url: media.url,
-                    userName: userName,
-                    message: message,
-                    isVideo: media.isVideo,
-                    isIntro: false
-                });
-            });
-        }
-    });
-
-    if (slideshowData.length === 0) {
-        Toast.error('Nessuna foto o video disponibile per lo slideshow!');
-        return;
+    if (usersToLoad.length === 0) {
+        return; // All URLs already loaded
     }
 
+    const loadingProgressBar = document.getElementById('loadingProgressBar');
+    const loadingProgressText = document.getElementById('loadingProgressText');
+
+    let totalFiles = 0;
+    let loadedFiles = 0;
+
+    // Count total files to load
+    usersToLoad.forEach(userName => {
+        totalFiles += allUsersData[userName].photos.length;
+    });
+
+    // Fetch URLs for each user
+    for (const userName of usersToLoad) {
+        const userData = allUsersData[userName];
+
+        for (let i = 0; i < userData.photos.length; i++) {
+            if (!userData.photos[i].url && userData.photos[i].ref) {
+                try {
+                    userData.photos[i].url = await userData.photos[i].ref.getDownloadURL();
+                    loadedFiles++;
+
+                    // Update progress
+                    const progress = Math.round((loadedFiles / totalFiles) * 100);
+                    if (loadingProgressBar) {
+                        loadingProgressBar.style.width = progress + '%';
+                    }
+                    if (loadingProgressText) {
+                        loadingProgressText.textContent = progress + '%';
+                    }
+                } catch (e) {
+                    console.error('Errore ottenendo URL per', userData.photos[i].name, e);
+                    loadedFiles++; // Count errors too to keep progress accurate
+                }
+            }
+        }
+
+        userData.urlsLoaded = true; // Mark as loaded
+    }
+}
+
+// Avvia slideshow completo
+async function startFullSlideshow() {
     // Celebrate starting slideshow
     ParticleEffects.stars();
 
@@ -357,36 +426,114 @@ function startFullSlideshow() {
         slideshowContainer.style.display = 'none';
     }
 
-    // Precarica tutte le immagini
-    preloadImages(slideshowData).then((imageCache) => {
-        // Nascondi loading, mostra slideshow
+    // Update loading text
+    const loadingText = slideshowLoading?.querySelector('p');
+    if (loadingText) {
+        loadingText.textContent = 'Caricamento URL foto e video...';
+    }
+
+    try {
+        // Fetch URLs on-demand if needed
+        await fetchAllUserUrls();
+
+        // Update loading text for image preloading
+        if (loadingText) {
+            loadingText.textContent = 'Caricamento foto e video...';
+        }
+
+        // Prepara array di tutte le foto e video raggruppate per persona
+        const slideshowData = [];
+
+        Object.keys(allUsersData).forEach(userName => {
+            const userData = allUsersData[userName];
+
+            if (userData.photos && userData.photos.length > 0) {
+                const message = userData.message || '';
+
+                // Filter out items without URLs
+                const validPhotos = userData.photos.filter(p => p.url);
+
+                if (validPhotos.length > 0) {
+                    // Add intro slide first
+                    slideshowData.push({
+                        isIntro: true,
+                        userName: userName,
+                        message: message,
+                        url: null,
+                        isVideo: false
+                    });
+
+                    // Then add all photos/videos
+                    validPhotos.forEach(media => {
+                        slideshowData.push({
+                            url: media.url,
+                            userName: userName,
+                            message: message,
+                            isVideo: media.isVideo,
+                            isIntro: false
+                        });
+                    });
+                }
+            }
+        });
+
+        if (slideshowData.length === 0) {
+            Toast.error('Nessuna foto o video disponibile per lo slideshow!');
+            if (slideshowLoading) {
+                slideshowLoading.style.display = 'none';
+            }
+            slideshowModal.style.display = 'none';
+            return;
+        }
+
+        // Reset progress bar for image preloading
+        const loadingProgressBar = document.getElementById('loadingProgressBar');
+        const loadingProgressText = document.getElementById('loadingProgressText');
+        if (loadingProgressBar) {
+            loadingProgressBar.style.width = '0%';
+        }
+        if (loadingProgressText) {
+            loadingProgressText.textContent = '0%';
+        }
+
+        // Precarica tutte le immagini
+        preloadImages(slideshowData).then((imageCache) => {
+            // Nascondi loading, mostra slideshow
+            if (slideshowLoading) {
+                slideshowLoading.style.display = 'none';
+            }
+            if (slideshowContainer) {
+                slideshowContainer.style.display = 'flex';
+            }
+
+            // Avvia slideshow with cached images
+            currentSlideshow = {
+                photos: slideshowData,
+                currentIndex: 0,
+                isPlaying: true,
+                intervalId: null,
+                videoTimeoutId: null,
+                imageCache: imageCache  // Store the cached images
+            };
+
+            displaySlide(currentSlideshow.currentIndex);
+            startSlideshowAutoPlay();
+
+            // Avvia musica se disponibile
+            if (backgroundMusic) {
+                backgroundMusic.play().catch(e => {
+                    console.log('Autoplay bloccato dal browser:', e);
+                });
+            }
+        });
+    } catch (error) {
+        console.error('Errore caricamento slideshow:', error);
+        Toast.error('Errore nel caricamento dello slideshow. Riprova.');
         if (slideshowLoading) {
             slideshowLoading.style.display = 'none';
         }
-        if (slideshowContainer) {
-            slideshowContainer.style.display = 'flex';
-        }
-
-        // Avvia slideshow with cached images
-        currentSlideshow = {
-            photos: slideshowData,
-            currentIndex: 0,
-            isPlaying: true,
-            intervalId: null,
-            videoTimeoutId: null,
-            imageCache: imageCache  // Store the cached images
-        };
-
-        displaySlide(currentSlideshow.currentIndex);
-        startSlideshowAutoPlay();
-
-        // Avvia musica se disponibile
-        if (backgroundMusic) {
-            backgroundMusic.play().catch(e => {
-                console.log('Autoplay bloccato dal browser:', e);
-            });
-        }
-    });
+        slideshowModal.style.display = 'none';
+    }
 }
 
 // Trova l'indice della slide introduttiva della persona precedente/successiva
