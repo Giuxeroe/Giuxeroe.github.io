@@ -1392,3 +1392,17 @@ body::before {
     color: #667eea;
 }
 
+/* Secret clickable "non" styling */
+.secret-non {
+    cursor: pointer;
+    position: relative;
+    transition: opacity 0.2s ease;
+    opacity: 0.85;
+}
+
+.secret-non:hover {
+    opacity: 1;
+    text-decoration: underline;
+    text-decoration-style: dotted;
+}
+

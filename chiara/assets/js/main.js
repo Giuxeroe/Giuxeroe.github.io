@@ -37,7 +37,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const chiaraName = document.getElementById('chiaraName');
     if (chiaraName) {
         chiaraName.addEventListener('click', () => {
-            document.getElementById('easterEggModal').style.display = 'block';
+            openEasterEgg('assets/images/chiara-placeholder.jpg', 'Questo sono io mentre programmavo il sito (non è vero)');
+        });
+    }
+
+    // Easter egg - click on secret "non"
+    const secretNon = document.getElementById('secretNon');
+    if (secretNon) {
+        secretNon.addEventListener('click', () => {
+            openEasterEgg('assets/images/andrea-placeholder.jpg', "L'artificialmente inseminato");
         });
     }
 });
@@ -1377,6 +1385,23 @@ class Toast {
 // Initialize global instances (will be set in DOMContentLoaded)
 let lightboxManager;
 let animationController;
+
+// Easter egg open function
+function openEasterEgg(imageSrc, captionText) {
+    const modal = document.getElementById('easterEggModal');
+    const photo = document.getElementById('easterEggPhoto');
+    const caption = document.querySelector('.easter-egg-caption');
+
+    if (photo) {
+        photo.src = imageSrc;
+    }
+    if (caption) {
+        caption.textContent = captionText;
+    }
+    if (modal) {
+        modal.style.display = 'block';
+    }
+}
 
 // Easter egg close function
 function closeEasterEgg() {
