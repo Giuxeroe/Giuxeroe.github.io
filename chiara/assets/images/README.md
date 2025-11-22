@@ -19,3 +19,4 @@ This directory should contain a photo of Chiara for the easter egg feature.
 - Maximum width: 1200px
 - Aspect ratio: Any (will be displayed responsively)
 
+

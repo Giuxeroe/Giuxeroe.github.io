@@ -6,6 +6,13 @@ let backgroundMusic = null;
 let currentVideoElement = null;
 let slideshowSpeed = 5000; // Velocità slideshow in millisecondi (default 5 secondi)
 let photoScale = 1.0; // Scala foto/video (default 100%)
+let loadingVideoIndex = 0; // Indice per rotazione sequenziale dei video di caricamento
+
+// Array dei video di caricamento da alternare sequenzialmente
+const loadingVideos = [
+    'assets/videos/Video WhatsApp 2025-11-22 ore 17.49.26_728ef6c3.mp4',
+    'assets/videos/Video WhatsApp 2025-11-22 ore 17.49.26_7ae9d293.mp4'
+];
 
 // Helper: determina se un file è un video basato sul nome
 function isVideo(fileName) {
@@ -14,11 +21,30 @@ function isVideo(fileName) {
     return videoExtensions.some(ext => lowerName.endsWith(ext));
 }
 
-// Helper: inizializza video di caricamento
+// Helper: inizializza video di caricamento con rotazione sequenziale
 function initLoadingVideo(container) {
     if (!container) return;
     const video = container.querySelector('.loading-video');
     if (video) {
+        // Imposta il video corrente basato sull'indice di rotazione
+        const currentVideoPath = loadingVideos[loadingVideoIndex];
+        const source = video.querySelector('source');
+        if (source) {
+            source.src = currentVideoPath;
+        } else {
+            // Se non c'è un tag source, crealo
+            const newSource = document.createElement('source');
+            newSource.src = currentVideoPath;
+            newSource.type = 'video/mp4';
+            video.innerHTML = '';
+            video.appendChild(newSource);
+        }
+
+        // Incrementa l'indice per la prossima volta (rotazione ciclica)
+        loadingVideoIndex = (loadingVideoIndex + 1) % loadingVideos.length;
+
+        // Carica e riproduci il video
+        video.load();
         video.currentTime = 0;
         video.play().catch(e => {
             console.log('Autoplay video bloccato:', e);
@@ -240,12 +266,12 @@ async function showUserGallery(userName, userData) {
         galleryPhotos.innerHTML = `
             <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; gap: 20px;">
                 <video autoplay loop muted playsinline class="loading-video">
-                    <source src="assets/images/Video WhatsApp 2025-11-22 ore 16.20.14_69b654bf.mp4" type="video/mp4">
+                    <source src="" type="video/mp4">
                 </video>
                 <p>Caricamento foto e video...</p>
             </div>
         `;
-        // Inizializza il video
+        // Inizializza il video con rotazione
         const loadingContainer = galleryPhotos.querySelector('div');
         if (loadingContainer) {
             initLoadingVideo(loadingContainer);
