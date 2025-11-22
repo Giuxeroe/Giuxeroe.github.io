@@ -32,6 +32,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Setup controlli slideshow
     setupSlideshowControls();
+
+    // Easter egg - click on Chiara's name
+    const chiaraName = document.getElementById('chiaraName');
+    if (chiaraName) {
+        chiaraName.addEventListener('click', () => {
+            document.getElementById('easterEggModal').style.display = 'block';
+        });
+    }
 });
 
 // Carica tutti i dati degli utenti da Storage
@@ -639,9 +647,19 @@ function displaySlide(index) {
         `;
         slideshowContainer.appendChild(introDiv);
 
-        // Clear info section
+        // Clear user name but keep message visible in panel
         slideshowUserName.textContent = '';
-        slideshowMessage.textContent = '';
+        // Show message in panel during intro slides too
+        if (slide.message && slide.message.trim()) {
+            slideshowMessage.textContent = `"${slide.message}"`;
+            slideshowMessage.style.opacity = '1';
+            slideshowMessage.style.fontStyle = 'italic';
+        } else {
+            slideshowMessage.textContent = 'Nessun messaggio';
+            slideshowMessage.style.opacity = '0.5';
+            slideshowMessage.style.fontStyle = 'italic';
+        }
+        slideshowMessage.style.display = 'block';
 
         // Celebrate intro slide with confetti
         ParticleEffects.celebrate();
@@ -722,8 +740,16 @@ function displaySlide(index) {
 
     slideshowUserName.textContent = slide.isVideo ? `Video con ${slide.userName}` : `Foto con ${slide.userName}`;
 
-    // Don't show message on regular slides (only on intro slides)
-    slideshowMessage.textContent = '';
+    // Show message during all slides for the current person
+    if (slide.message && slide.message.trim()) {
+        slideshowMessage.textContent = `"${slide.message}"`;
+        slideshowMessage.style.opacity = '1';
+        slideshowMessage.style.fontStyle = 'italic';
+    } else {
+        slideshowMessage.textContent = 'Nessun messaggio';
+        slideshowMessage.style.opacity = '0.5';
+        slideshowMessage.style.fontStyle = 'italic';
+    }
     slideshowMessage.style.display = 'block';
 
     // Aggiorna progress bar
@@ -1351,3 +1377,8 @@ class Toast {
 // Initialize global instances (will be set in DOMContentLoaded)
 let lightboxManager;
 let animationController;
+
+// Easter egg close function
+function closeEasterEgg() {
+    document.getElementById('easterEggModal').style.display = 'none';
+}

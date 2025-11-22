@@ -1,52 +1,115 @@
-<!-- a68ff52c-4ebc-40fd-b48d-a899bfc27a7c 7437637c-0952-4316-8959-4c5397fe30f7 -->
-# Make Photos Larger and Show Messages
+<!-- a68ff52c-4ebc-40fd-b48d-a899bfc27a7c 23a93450-8d8e-4415-90f3-7f098c79c578 -->
+# Personalize Homepage and Improve Slideshow
 
-## Issues Identified
+## Part 1: Larger Photos and Visible Messages
 
-1. **Photos could be larger**: Currently photos use the full container, but the floating panel (280px wide) visually blocks part of the view
-2. **Messages not showing**: Messages are cleared on regular slides (line 501 in main.js), only shown on intro slides
+### 1. Reduce Floating Panel Size (`chiara/assets/css/style.css`)
 
-## Solutions
-
-### 1. Make Floating Panel Smaller (`chiara/assets/css/style.css`)
-
-- Reduce panel width from 280px to 220px for more photo space
-- Reduce padding and font sizes slightly to fit content
-- This gives photos more visual presence
-
-### 2. Show Messages in Floating Panel (`chiara/assets/js/main.js`)
-
-- On regular photo/video slides, display the user's message in the floating panel
-- Change line 501 from `slideshowMessage.textContent = '';` to `slideshowMessage.textContent = slide.message || '';`
-- Keep message visible during person's photos
-- Hide message only on intro slides (where it's shown large in main area)
-
-## Key Changes
-
-CSS:
+Reduce panel width from 280px to 220px:
 
 ```css
 .slideshow-floating-panel {
     width: 220px;  /* Was 280px */
-    padding: 12px;  /* Was 15px */
 }
 ```
 
-JavaScript:
+### 2. Show Messages During Slides (`chiara/assets/js/main.js`)
+
+Change line 501 to display messages:
 
 ```javascript
-// Show message on regular slides (not just intro)
+// Was: slideshowMessage.textContent = '';
 slideshowMessage.textContent = slide.message || '';
 ```
 
-This achieves:
+## Part 2: Personalize Homepage
 
-- More screen space for photos (60px wider visible area)
-- Messages visible throughout person's slides
-- Better user experience
+### 3. Update Hero Title (`chiara/index.html`)
+
+Change line 13 from "🎉 Buon Compleanno! 🎉" to:
+
+```html
+<h1>🎉 Buon Compleanno <span id="chiaraName" class="chiara-name">Chiara</span>! 🎉</h1>
+```
+
+### 4. Add Easter Egg Modal (`chiara/index.html`)
+
+After line 65 (toastContainer), add modal for Chiara's photo:
+
+```html
+<!-- Easter Egg Modal -->
+<div id="easterEggModal" class="modal" style="display: none;">
+    <div class="modal-content easter-egg-content">
+        <button class="close-btn" onclick="closeEasterEgg()">×</button>
+        <img src="assets/images/chiara-placeholder.jpg" alt="Chiara" id="easterEggPhoto">
+        <p class="easter-egg-caption">🎂✨</p>
+    </div>
+</div>
+```
+
+### 5. Style Easter Egg (`chiara/assets/css/style.css`)
+
+Add styles for clickable name and modal:
+
+```css
+.chiara-name {
+    cursor: pointer;
+    position: relative;
+    animation: rainbow 3s infinite;
+}
+
+.chiara-name:hover {
+    transform: scale(1.1);
+}
+
+@keyframes rainbow {
+    0%, 100% { color: #667eea; }
+    25% { color: #f093fb; }
+    50% { color: #667eea; }
+    75% { color: #764ba2; }
+}
+
+.easter-egg-content {
+    text-align: center;
+    max-width: 600px;
+}
+
+#easterEggPhoto {
+    max-width: 100%;
+    border-radius: 15px;
+}
+```
+
+### 6. Add Easter Egg Logic (`chiara/assets/js/main.js`)
+
+Add click handler and close function at end of file:
+
+```javascript
+// Easter egg
+document.addEventListener('DOMContentLoaded', () => {
+    const chiaraName = document.getElementById('chiaraName');
+    if (chiaraName) {
+        chiaraName.addEventListener('click', () => {
+            document.getElementById('easterEggModal').style.display = 'block';
+        });
+    }
+});
+
+function closeEasterEgg() {
+    document.getElementById('easterEggModal').style.display = 'none';
+}
+```
+
+### 7. Create Placeholder Image Directory
+
+Create `chiara/assets/images/` folder and add a note to replace `chiara-placeholder.jpg` with actual photo.
 
 ### To-dos
 
-- [ ] Fix modal-content to 100vw x 100vh, remove max-width/max-height
-- [ ] Make slideshow-container 100% x 100%, remove conflicting vh values
-- [ ] Ensure floating panel has pointer-events auto and proper z-index
+- [ ] Reduce floating panel width from 280px to 220px
+- [ ] Display user message during their photos/videos in floating panel
+- [ ] Change title to 'Buon Compleanno Chiara!' with clickable name
+- [ ] Add easter egg modal HTML for Chiara's photo
+- [ ] Add CSS for animated name and easter egg modal
+- [ ] Add JavaScript for easter egg click and close handlers
+- [ ] Create images directory with placeholder note

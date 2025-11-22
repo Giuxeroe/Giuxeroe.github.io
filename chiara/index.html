@@ -10,7 +10,7 @@
     <!-- Hero Section -->
     <div class="hero">
         <div class="container">
-            <h1>🎉 Buon Compleanno! 🎉</h1>
+            <h1>🎉 Buon Compleanno <span id="chiaraName" class="chiara-name">Chiara</span>! 🎉</h1>
             <p>Una collezione speciale di ricordi condivisi dai tuoi amici</p>
             <a href="upload.html" class="btn">Carica le tue foto</a>
         </div>
@@ -63,6 +63,15 @@
 
     <!-- Toast Notification Container -->
     <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Easter Egg Modal -->
+    <div id="easterEggModal" class="modal" style="display: none;">
+        <div class="modal-content easter-egg-content">
+            <button class="close-btn" onclick="closeEasterEgg()">×</button>
+            <img src="assets/images/chiara-placeholder.jpg" alt="Chiara" id="easterEggPhoto">
+            <p class="easter-egg-caption">🎂✨</p>
+        </div>
+    </div>
 
     <!-- Slideshow Modal -->
     <div id="slideshowModal" class="modal">
